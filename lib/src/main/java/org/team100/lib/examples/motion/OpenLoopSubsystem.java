@@ -40,7 +40,7 @@ public class OpenLoopSubsystem extends SubsystemBase {
          * for simulation.
          */
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
                 CanId canId = new CanId(1);
                 CurrentLimit limit = new CurrentLimit(90, 60);
                 PIDConstants pid = PIDConstants.makeVelocityPID(0.05);

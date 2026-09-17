@@ -34,7 +34,7 @@ public class Experiments {
 
     /** These experiments are enabled on specific robot types. */
     private final Map<Identity, Set<Experiment>> experimentsByIdentity = Map.of(
-            Identity.COMP_BOT, Set.of(),
+            Identity.LAUNDRY_BOT, Set.of(),
             Identity.BLANK, Set.of());
 
     /** Computed for the actual identity used. */

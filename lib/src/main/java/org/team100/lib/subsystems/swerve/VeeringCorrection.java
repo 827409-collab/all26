@@ -53,7 +53,7 @@ public class VeeringCorrection {
     private static double byIdentity() {
         switch (Identity.instance) {
             /** TODO: THIS MUST BE CALIBRATED! */
-            case COMP_BOT:
+            case LAUNDRY_BOT:
             case SWERVE_ONE:
             case SWERVE_TWO:
                 return 0.025;

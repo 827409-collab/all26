@@ -71,8 +71,8 @@ public class RRRArmCouple12 extends SubsystemBase implements RRRArm {
                 VecBuilder.fill(0, 0, 0),
                 0.1, 0.1, 0.1,
                 l1, l2, l3);
-        RRRConfig qMin = new RRRConfig(-Math.PI / 2, -3 * Math.PI / 4, -3 * Math.PI / 4);
-        RRRConfig qMax = new RRRConfig(Math.PI / 2, 3 * Math.PI / 4, 3 * Math.PI / 4);
+        RRRConfig qMin = new RRRConfig(-Math.PI / 2 + 0.1, -3 * Math.PI / 4, -3 * Math.PI / 4);
+        RRRConfig qMax = new RRRConfig(Math.PI / 2 - 0.1, 3 * Math.PI / 4, 3 * Math.PI / 4);
         m_feasibility = new RRRFeasibility(m_kinematics, qMin, qMax);
         final Motor m1;
         final Motor m2;

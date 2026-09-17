@@ -17,7 +17,7 @@ public class GyroFactory {
             SwerveModuleCollection collection) {
         switch (Identity.instance) {
             case SWERVE_ONE:
-            case COMP_BOT:
+            case LAUNDRY_BOT:
             case BETA_BOT:
                 return new ReduxGyro(parent, new CanId(60));
             default:
