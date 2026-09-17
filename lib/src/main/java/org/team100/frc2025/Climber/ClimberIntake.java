@@ -28,7 +28,7 @@ public class ClimberIntake extends SubsystemBase {
         LoggerFactory log = parent.type(this);
         count = 0;
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
                 m_motor = new KrakenX60Motor(
                         log, currentLog,
                         canID, NeutralMode100.COAST, MotorPhase.REVERSE,

@@ -54,7 +54,7 @@ public class Manipulator extends SubsystemBase implements Music {
         LoggerFactory rightMotorLog = log.name("right");
         coralLogger = log.booleanLogger(Level.TRACE, "Coral Detection");
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
                 // Set specific parameters for the competition robot
                 KrakenX60Motor leftMotor = new KrakenX60Motor(
                         leftMotorLog, currentLog, new CanId(19),

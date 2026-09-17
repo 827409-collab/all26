@@ -147,7 +147,7 @@ public abstract class SwerveModule100 implements Player {
         switch (Identity.instance) {
             case SWERVE_ONE:
             case SWERVE_TWO:
-            case COMP_BOT:
+            case LAUNDRY_BOT:
                 driveM = correctPositionForSteering(driveM, unwrappedAngleRad);
                 break;
             case BLANK:

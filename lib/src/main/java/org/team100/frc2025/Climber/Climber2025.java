@@ -45,7 +45,7 @@ public class Climber2025 extends SubsystemBase {
         PIDFeedback feedback = new PIDFeedback(log, 5, 0, 0, false, 0.05, 0.1);
 
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
                 Falcon500Motor motor = new Falcon500Motor(
                         log, currentLog, canID, NeutralMode100.BRAKE, MotorPhase.REVERSE,
                         new CurrentLimit(20, 20),

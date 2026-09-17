@@ -93,7 +93,7 @@ public class RotaryPositionSubsystem1d extends SubsystemBase {
          * for simulation.
          */
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
                 // these constants only apply to the COMP_BOT case.
                 // note the pattern here: using a variable is a way to label the thing
                 // without needing to write a comment.

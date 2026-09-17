@@ -157,7 +157,7 @@ public class CalgamesMech extends SubsystemBase implements Music, PositionSubsys
         LoggerFactory wristLog = parent.name("wrist");
 
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
 
                 final double elevatorGearRatio = 2.182;
                 final double elevatorDrivePulleyDiameterM = 0.03844;

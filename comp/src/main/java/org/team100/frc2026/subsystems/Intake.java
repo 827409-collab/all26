@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
         final Motor m1;
         final Motor m2;
         switch (Identity.instance) {
-            case TEST_BOARD_B0, COMP_BOT -> {
+            case TEST_BOARD_B0 -> {
 
                 // friction test 3/12/26
                 Friction friction = new Friction(0.5, 0.5, 0.0, 0.5);

@@ -11,7 +11,7 @@ public class ControllerFactorySE2 {
     /** For real robots. */
     public static ControllerSE2 byIdentity(LoggerFactory log) {
         switch (Identity.instance) {
-            case COMP_BOT -> {
+            case LAUNDRY_BOT -> {
                 return new FullStateControllerSE2(log,
                         2.9, // P for x/y
                         3.5, // P for theta
