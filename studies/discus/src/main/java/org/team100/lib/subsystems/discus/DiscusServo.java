@@ -110,7 +110,7 @@ public class DiscusServo extends SubsystemBase {
     }
 
     private void resetEncoderPosition() {
-        m_sensor.setEncoderPosition(0);
+        m_sensor.setUnwrappedEncoderPositionRad(0);
     }
 
     ///////////////////////
