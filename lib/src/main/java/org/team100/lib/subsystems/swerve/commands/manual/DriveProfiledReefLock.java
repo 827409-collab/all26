@@ -148,7 +148,7 @@ public class DriveProfiledReefLock extends Command {
         VelocitySE2 scaled = GeometryUtil.scale(apply(s, t), DriverSkill.level().scale());
 
         // Apply field-relative limits.
-        if (Experiments.instance.enabled(Experiment.UseSwerveLimiter)) {
+        if (Experiments.INSTANCE.enabled(Experiment.UseSwerveLimiter)) {
             scaled = m_limiter.apply(scaled);
         }
 
