@@ -78,7 +78,9 @@ public class GroundTruth {
 
             // Simulated camera uses the ground truth because the real cameras are not aware
             // of the pose estimate.
-            m_simulatedTagDetector = SimulatedTagDetector.get(
+            // m_simulatedTagDetector = SimulatedTagDetector.get(
+                    // layout, groundTruthHistory);
+            m_simulatedTagDetector = SimulatedTagCornerDetector.get(
                     layout, groundTruthHistory);
         }
     }

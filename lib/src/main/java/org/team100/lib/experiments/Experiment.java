@@ -43,7 +43,14 @@ public enum Experiment {
      * This is useful when there's no vision input to fix the gyro drift and/or
      * odometry noise, e.g. for practice without tags.
      */
-    PerfectGyro("Use only the gyro for rotation");
+    PerfectGyro("Use only the gyro for rotation"),
+    /**
+     * Use simulated camera in real robot.
+     * 
+     * Useful for testing real-robot localization without a physical camera
+     * attached. The simulated camera is used by default in simulation.
+     */
+    SimulateCameras("Use simulated camera in real robot");
 
     /** Show this at startup */
     public final String description;
