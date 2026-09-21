@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
                 },
                 () -> Optional.of(Alliance.Blue));
         estimate = new FreshSwerveEstimate(
-                m_localizer::update,
+                m_localizer,
                 () -> {
                 }, history);
         m_robotViz = new RobotPoseVisualization(
