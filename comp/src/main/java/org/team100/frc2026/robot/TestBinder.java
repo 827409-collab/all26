@@ -51,7 +51,6 @@ public class TestBinder {
                         m_log,
                         m_machinery.m_swerveKinodynamics,
                         driver::velocity,
-                        m_machinery.m_localizer::setHeedRadiusM,
                         m_machinery.m_drive,
                         m_machinery.m_limiter));
         m_machinery.m_intake.setDefaultCommand(
@@ -146,7 +145,6 @@ public class TestBinder {
                         m_machinery.m_swerveKinodynamics,
                         aim,
                         driver::velocity,
-                        m_machinery.m_localizer::setHeedRadiusM,
                         m_machinery.m_limiter,
                         m_machinery.m_cachedSolution,
                         m_machinery.m_drive)

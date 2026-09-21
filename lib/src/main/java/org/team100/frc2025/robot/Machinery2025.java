@@ -13,7 +13,6 @@ import org.team100.frc2025.indicator.LEDIndicator;
 import org.team100.lib.coherence.Takt;
 import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.indicator.Beeper;
-import org.team100.lib.localization.AprilTagCornerRobotLocalizer;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.NudgingVisionUpdater;
 import org.team100.lib.localization.OdometryUpdater;
@@ -39,7 +38,6 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * This should contain all the hardware of the robot: all the subsystems etc
@@ -73,8 +71,6 @@ public class Machinery2025 {
     final ClimberIntake m_climberIntake;
     final TrajectoryVisualization m_trajectoryViz;
     final SwerveKinodynamics m_swerveKinodynamics;
-    // final AprilTagRobotLocalizer m_localizer;
-    final AprilTagCornerRobotLocalizer m_localizer;
     final Targets m_targets;
     final SwerveDriveSubsystem m_drive;
     final Beeper m_beeper;
@@ -138,20 +134,6 @@ public class Machinery2025 {
         //
         final AprilTagFieldLayoutWithCorrectOrientation layout = getLayout();
 
-        // m_localizer = new AprilTagRobotLocalizer(
-        // driveLog,
-        // fieldLogger,
-        // layout,
-        // history,
-        // visionUpdater,
-        // DriverStation::getAlliance);
-        m_localizer = new AprilTagCornerRobotLocalizer(
-                driveLog,
-                fieldLogger,
-                layout,
-                history,
-                visionUpdater,
-                DriverStation::getAlliance);
         m_targets = new Targets(driveLog, fieldLogger, 0.2, history);
 
         ////////////////////////////////////////////////////////////
@@ -167,8 +149,10 @@ public class Machinery2025 {
         //
         m_drive = SwerveDriveFactory.get(
                 driveLog,
+                fieldLogger,
                 m_swerveKinodynamics,
-                m_localizer,
+                layout,
+                visionUpdater,
                 odometryUpdater,
                 history,
                 m_modules);

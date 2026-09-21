@@ -1,7 +1,5 @@
 package org.team100.lib.localization;
 
-import java.util.function.DoubleFunction;
-
 import org.team100.lib.coherence.Cache;
 import org.team100.lib.coherence.SideEffect;
 import org.team100.lib.state.StateSE2;
@@ -13,9 +11,12 @@ import org.team100.lib.state.StateSE2;
  * mutate it. Some clients want "fresh" estimates, and should use this class;
  * other clients only need old historical estimates, and should use the history.
  */
-public class FreshSwerveEstimate implements DoubleFunction<StateSE2> {
-    /** Actually SwerveHistory */
-    private final DoubleFunction<StateSE2> m_history;
+public class FreshSwerveEstimate {
+    private static final boolean DEBUG = false;
+
+    /** SwerveHistory delegate. */
+    private final SwerveHistory m_history;
+    private final AprilTagCornerRobotLocalizer m_localizer;
     /** Side effect mutates history. */
     private final SideEffect m_vision;
     /** Side effect mutates history. */
@@ -27,11 +28,12 @@ public class FreshSwerveEstimate implements DoubleFunction<StateSE2> {
      * @param history        SwerveHistory
      */
     public FreshSwerveEstimate(
-            Runnable visionUpdate,
+            AprilTagCornerRobotLocalizer localizer,
             Runnable odometryUpdate,
-            DoubleFunction<StateSE2> history) {
+            SwerveHistory history) {
+        m_localizer = localizer;
         m_history = history;
-        m_vision = Cache.ofSideEffect(visionUpdate);
+        m_vision = Cache.ofSideEffect(localizer::update);
         m_odometry = Cache.ofSideEffect(odometryUpdate);
     }
 
@@ -39,13 +41,23 @@ public class FreshSwerveEstimate implements DoubleFunction<StateSE2> {
      * Provide the best estimate for SwerveModel at the given timestamp, first
      * making sure any pending updates from vision or odometry have been applied.
      */
-    @Override
     public StateSE2 apply(double timestampS) {
         // run our dependencies if they haven't already
         m_vision.run();
         m_odometry.run();
         // query the history
-        return m_history.apply(timestampS);
+        StateSE2 state = m_history.apply(timestampS);
+        if (DEBUG) {
+            System.out.printf("FreshSwerveEstimate.update() estimated pose: %s\n", state);
+        }
+        return state;
+    }
+
+    /**
+     * Tags outside this radius are ignored.
+     */
+    public void setHeedRadiusM(double heedRadiusM) {
+        m_localizer.setHeedRadiusM(heedRadiusM);
     }
 
 }

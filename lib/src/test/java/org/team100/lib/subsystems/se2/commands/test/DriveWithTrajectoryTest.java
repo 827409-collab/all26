@@ -13,8 +13,8 @@ import org.team100.lib.controller.se2.ControllerFactorySE2;
 import org.team100.lib.controller.se2.ControllerSE2;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
+import org.team100.lib.localization.AprilTagCornerRobotLocalizer;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.AprilTagRobotLocalizer;
 import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.NudgingVisionUpdater;
 import org.team100.lib.localization.OdometryUpdater;
@@ -193,10 +193,10 @@ public class DriveWithTrajectoryTest implements Timeless {
 
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
 
-        AprilTagRobotLocalizer localizer = new AprilTagRobotLocalizer(
+        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
                 logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer::update, odometryUpdater::update, history);
+                localizer, odometryUpdater::update, history);
         SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(

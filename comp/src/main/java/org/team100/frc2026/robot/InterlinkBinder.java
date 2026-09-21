@@ -46,7 +46,6 @@ public class InterlinkBinder {
                         m_log,
                         m_machinery.m_swerveKinodynamics,
                         driver::velocity,
-                        m_machinery.m_localizer::setHeedRadiusM,
                         m_machinery.m_drive,
                         m_machinery.m_limiter));
         m_machinery.m_shooter.setDefaultCommand(
@@ -89,7 +88,6 @@ public class InterlinkBinder {
                         m_machinery.m_swerveKinodynamics,
                         aim,
                         driver::velocity,
-                        m_machinery.m_localizer::setHeedRadiusM,
                         m_machinery.m_limiter,
                         m_machinery.m_cachedSolution,
                         m_machinery.m_drive)

@@ -11,8 +11,8 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.se2.VelocitySE2;
+import org.team100.lib.localization.AprilTagCornerRobotLocalizer;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.AprilTagRobotLocalizer;
 import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.NudgingVisionUpdater;
 import org.team100.lib.localization.OdometryUpdater;
@@ -81,11 +81,11 @@ public class SimulatedDrivingTest implements Timeless {
                 logger, history, odometryUpdater);
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
 
-        AprilTagRobotLocalizer localizer = new AprilTagRobotLocalizer(
+        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
                 logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
 
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer::update, odometryUpdater::update, history);
+                localizer, odometryUpdater::update, history);
         limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
 
         drive = new SwerveDriveSubsystem(

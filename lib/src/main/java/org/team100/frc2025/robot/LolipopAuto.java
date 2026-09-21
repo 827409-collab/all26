@@ -89,7 +89,7 @@ public class LolipopAuto {
         return sequence(
                 toReefTrajectory.until(toReefTrajectory::isDone),
                 parallel(
-                        runOnce(() -> m_machinery.m_localizer.setHeedRadiusM(HEED_RADIUS_M)),
+                        runOnce(() -> m_machinery.m_drive.setHeedRadiusM(HEED_RADIUS_M)),
                         toReefA,
                         m_machinery.m_mech.profileHomeAndThenRest().until(toReefA::isDone).andThen(toL4),
                         waitUntil(() -> toReefA.isDone() && toL4.isDone())

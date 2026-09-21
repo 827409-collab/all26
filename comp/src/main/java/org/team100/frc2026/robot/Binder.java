@@ -43,7 +43,6 @@ public class Binder {
                         log,
                         m_machinery.m_swerveKinodynamics,
                         m_driver::velocity,
-                        m_machinery.m_localizer::setHeedRadiusM,
                         m_machinery.m_drive,
                         m_machinery.m_limiter));
         m_machinery.m_intake.setDefaultCommand(
@@ -108,7 +107,6 @@ public class Binder {
                         m_machinery.m_swerveKinodynamics,
                         aim,
                         m_driver::velocity,
-                        m_machinery.m_localizer::setHeedRadiusM,
                         m_machinery.m_limiter,
                         m_machinery.m_cachedSolution,
                         m_machinery.m_drive)

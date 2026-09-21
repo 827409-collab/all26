@@ -212,10 +212,6 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
                 logCalibration(camera, cameraToTag);
             }
 
-            double timeSec = (double) blip.getTimestamp() / 1e6;
-            m_log_lag.log(() -> Takt.get() - timeSec);
-            Pose2d samplePose = sample(timeSec);
-
             // Look up the pose of the tag in the field frame.
             Optional<Pose3d> tagInFieldOpt = m_layout.getTagPose(alliance, blip.getId());
             if (!tagInFieldOpt.isPresent()) {
@@ -224,23 +220,21 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
                 continue;
             }
 
-            // Field-to-tag.
-            // This is not an estimate, it's the canonical pose from JSON.
+            // Field-to-tag, canonical pose from JSON map.
             final Pose3d tagInField = tagInFieldOpt.get();
 
-            // Do not override tag rotation
-            // tagInCamera = maybeOverrideRotation(cameraOffset, samplePose, tagInField,
-            // tagInCamera);
-
-            // Estimate the tag pose in the field frame.
-            Pose3d estimatedTagInField = estimatedTagInField(cameraOffset, samplePose, cameraToTag);
-            m_allTags.add(timeSec, estimatedTagInField);
-            logTagError(tagInField, estimatedTagInField);
-
             // Compute the pose implied by the vision input.
-            Pose2d robotPose2d = robotPose2d(samplePose, cameraOffset, tagInField, cameraToTag);
+            Pose2d robotPose2d = robotPose2d(cameraOffset, tagInField, cameraToTag);
             if (DEBUG)
                 System.out.printf("robotPose2d %s\n", robotPose2d);
+
+            // Estimate the tag pose in the field frame.
+            double blipTimeSec = (double) blip.getTimestamp() / 1e6;
+            m_log_lag.log(() -> Takt.get() - blipTimeSec);
+            Pose2d samplePose = sample(blipTimeSec);
+            Pose3d estimatedTagInField = estimatedTagInField(cameraOffset, samplePose, cameraToTag);
+            m_allTags.add(blipTimeSec, estimatedTagInField);
+            logTagError(tagInField, estimatedTagInField);
 
             //////////////////////////////////////////////////////////////////
             ///
@@ -278,7 +272,7 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
             ///
             //////////////////////////////////////////////////////////////////
 
-            m_usedTags.add(timeSec, estimatedTagInField);
+            m_usedTags.add(blipTimeSec, estimatedTagInField);
 
             NoisyPose2d noisyMeasurement = new NoisyPose2d(
                     robotPose2d,
@@ -286,7 +280,7 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
                             cameraToTag.getTranslation().getNorm(),
                             Metrics.offAxisAngleRad(cameraToTag)));
 
-            m_visionUpdater.put(timeSec, noisyMeasurement);
+            m_visionUpdater.put(blipTimeSec, noisyMeasurement);
             m_prevPose = robotPose2d;
         }
 
@@ -328,13 +322,11 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
     /**
      * Compute the robot pose implied by the vision input.
      * 
-     * @param historicalPose sampled from history.
-     * @param cameraInRobot  camera offset, from Camera.java.
-     * @param tagInField     tag pose from JSON.
-     * @param tagInCamera    tag transform in camera frame.
+     * @param cameraInRobot camera offset, from Camera.java.
+     * @param tagInField    tag pose from JSON.
+     * @param tagInCamera   tag transform in camera frame.
      */
     private Pose2d robotPose2d(
-            Pose2d historicalPose,
             Transform3d cameraInRobot,
             Pose3d tagInField,
             Transform3d tagInCamera) {
@@ -342,10 +334,6 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
         Pose3d robotPose3d = PoseEstimationHelper.robotInField(
                 cameraInRobot, tagInField, tagInCamera);
         Pose2d robotPose2d = robotPose3d.toPose2d();
-        // we used to override the rotation
-        // Pose2d robotPose2d = new Pose2d(
-        // robotPose3d.getTranslation().toTranslation2d(),
-        // historicalPose.getRotation());
         m_log_pose.log(() -> robotPose2d);
         m_pub_pose.set(robotPose2d);
         return robotPose2d;

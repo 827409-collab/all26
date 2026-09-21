@@ -12,7 +12,6 @@ import org.team100.lib.coherence.Takt;
 import org.team100.lib.controller.se2.ControllerSE2;
 import org.team100.lib.controller.se2.FullStateControllerSE2;
 import org.team100.lib.indicator.Beeper;
-import org.team100.lib.localization.AprilTagCornerRobotLocalizer;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.GroundTruth;
 import org.team100.lib.localization.NudgingVisionUpdater;
@@ -40,7 +39,6 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -70,8 +68,6 @@ public class Machinery {
     public final TrajectoryVisualization m_trajectoryViz;
     public final SwerveKinodynamics m_swerveKinodynamics;
     public final NudgingVisionUpdater m_visionUpdater;
-    // public final AprilTagRobotLocalizer m_localizer;
-    public final AprilTagCornerRobotLocalizer m_localizer;
     public final SwerveLimiter m_limiter;
     public final SwerveDriveSubsystem m_drive;
     public final Beeper m_beeper;
@@ -118,13 +114,12 @@ public class Machinery {
                 Pose2d.kZero,
                 IsotropicNoiseSE2.high(),
                 Takt.get());
-        OdometryUpdater odometryUpdater =  OdometryUpdater.normal(
+        OdometryUpdater odometryUpdater = OdometryUpdater.normal(
                 driveLog,
                 m_swerveKinodynamics,
                 gyro,
                 history,
                 m_modules::positions);
-        // odometryUpdater.m_debug = true;
         odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
         m_visionUpdater = new NudgingVisionUpdater(
                 driveLog, history, odometryUpdater);
@@ -134,20 +129,6 @@ public class Machinery {
         // CAMERA READERS
         //
         AprilTagFieldLayoutWithCorrectOrientation layout = AprilTagFieldLayoutWithCorrectOrientation.getLayout();
-        // m_localizer = new AprilTagRobotLocalizer(
-        // driveLog,
-        // fieldLogger,
-        // layout,
-        // history,
-        // m_visionUpdater,
-        // DriverStation::getAlliance);
-        m_localizer = new AprilTagCornerRobotLocalizer(
-                driveLog,
-                fieldLogger,
-                layout,
-                history,
-                m_visionUpdater,
-                DriverStation::getAlliance);
 
         ////////////////////////////////////////////////////////////
         //
@@ -159,8 +140,11 @@ public class Machinery {
                 RobotController::getBatteryVoltage);
         m_drive = SwerveDriveFactory.get(
                 driveLog,
+                fieldLogger,
                 m_swerveKinodynamics,
-                m_localizer,
+                // m_localizer,
+                layout,
+                m_visionUpdater,
                 odometryUpdater,
                 history,
                 m_modules);

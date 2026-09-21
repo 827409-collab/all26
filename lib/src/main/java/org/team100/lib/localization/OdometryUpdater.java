@@ -134,7 +134,13 @@ public class OdometryUpdater {
 
     /** For testing. */
     SwerveState update(double timestamp) {
-        return put(timestamp, m_gyro.getYawNWU(), m_positions.get());
+        SwerveModulePositions positions = m_positions.get();
+        Rotation2d yawNWU = m_gyro.getYawNWU();
+        if (DEBUG) {
+            System.out.printf("OdometryUpdater.update() gyro %s positions %s\n",
+                    yawNWU, positions);
+        }
+        return put(timestamp, yawNWU, positions);
     }
 
     /**

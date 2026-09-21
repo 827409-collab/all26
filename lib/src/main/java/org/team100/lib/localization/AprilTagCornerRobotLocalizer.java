@@ -215,10 +215,6 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
                 logCalibration(camera, cameraToTag);
             }
 
-            double timeSec = (double) blip.getTimestamp() / 1e6;
-            m_log_lag.log(() -> Takt.get() - timeSec);
-            Pose2d samplePose = sample(timeSec);
-
             // Look up the pose of the tag in the field frame.
             Optional<Pose3d> tagInFieldOpt = m_layout.getTagPose(alliance, blip.getId());
             if (!tagInFieldOpt.isPresent()) {
@@ -227,23 +223,22 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
                 continue;
             }
 
-            // Field-to-tag.
-            // This is not an estimate, it's the canonical pose from JSON.
+            // Field-to-tag, canonical pose from JSON map.
             final Pose3d tagInField = tagInFieldOpt.get();
 
-            // Do not override tag rotation
-            // tagInCamera = maybeOverrideRotation(cameraOffset, samplePose, tagInField,
-            // tagInCamera);
-
-            // Estimate the tag pose in the field frame.
-            Pose3d estimatedTagInField = estimatedTagInField(cameraOffset, samplePose, cameraToTag);
-            m_allTags.add(timeSec, estimatedTagInField);
-            logTagError(tagInField, estimatedTagInField);
-
             // Compute the pose implied by the vision input.
-            Pose2d robotPose2d = robotPose2d(samplePose, cameraOffset, tagInField, cameraToTag);
+            Pose2d robotPose2d = robotPose2d(cameraOffset, tagInField, cameraToTag);
             if (DEBUG)
                 System.out.printf("robotPose2d %s\n", robotPose2d);
+
+            // Estimate the tag pose in the field frame.
+            double blipTimeSec = (double) blip.getTimestamp() / 1e6;
+            m_log_lag.log(() -> Takt.get() - blipTimeSec);
+            Pose2d samplePose = sample(blipTimeSec);
+            Pose3d estimatedTagInField = estimatedTagInField(cameraOffset, samplePose, cameraToTag);
+            m_allTags.add(blipTimeSec, estimatedTagInField);
+            logTagError(tagInField, estimatedTagInField);
+
 
             //////////////////////////////////////////////////////////////////
             ///
@@ -281,7 +276,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
             ///
             //////////////////////////////////////////////////////////////////
 
-            m_usedTags.add(timeSec, estimatedTagInField);
+            m_usedTags.add(blipTimeSec, estimatedTagInField);
 
             NoisyPose2d noisyMeasurement = new NoisyPose2d(
                     robotPose2d,
@@ -289,7 +284,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
                             cameraToTag.getTranslation().getNorm(),
                             Metrics.offAxisAngleRad(cameraToTag)));
 
-            m_visionUpdater.put(timeSec, noisyMeasurement);
+            m_visionUpdater.put(blipTimeSec, noisyMeasurement);
             m_prevPose = robotPose2d;
         }
 
@@ -310,7 +305,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
     /**
      * Tags outside this radius are ignored.
      */
-    public void setHeedRadiusM(double heedRadiusM) {
+    void setHeedRadiusM(double heedRadiusM) {
         m_heedRadiusM = heedRadiusM;
         m_log_heedRadius.log(() -> m_heedRadiusM);
     }
@@ -320,7 +315,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
                 camera.name(),
                 (x) -> m_log_cameraToTag_factory.transform3dLogger(Level.TRACE, x));
         logCameraToTag.log(() -> cameraToTag);
-        // when correctly calibreated, this should match the actual robot-to-tag
+        // when correctly calibrated, this should match the actual robot-to-tag
         Transform3dLogger logRobotToTag = m_log_tagInRobot.computeIfAbsent(
                 camera.name(),
                 (x) -> m_log_robotToTag_factory.transform3dLogger(Level.TRACE, x));
@@ -331,13 +326,11 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
     /**
      * Compute the robot pose implied by the vision input.
      * 
-     * @param historicalPose sampled from history.
-     * @param cameraInRobot  camera offset, from Camera.java.
-     * @param tagInField     tag pose from JSON.
-     * @param tagInCamera    tag transform in camera frame.
+     * @param cameraInRobot camera offset, from Camera.java.
+     * @param tagInField    tag pose from JSON.
+     * @param tagInCamera   tag transform in camera frame.
      */
     private Pose2d robotPose2d(
-            Pose2d historicalPose,
             Transform3d cameraInRobot,
             Pose3d tagInField,
             Transform3d tagInCamera) {
@@ -345,10 +338,6 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
         Pose3d robotPose3d = PoseEstimationHelper.robotInField(
                 cameraInRobot, tagInField, tagInCamera);
         Pose2d robotPose2d = robotPose3d.toPose2d();
-        // we used to override the rotation
-        // Pose2d robotPose2d = new Pose2d(
-        // robotPose3d.getTranslation().toTranslation2d(),
-        // historicalPose.getRotation());
         m_log_pose.log(() -> robotPose2d);
         m_pub_pose.set(robotPose2d);
         return robotPose2d;
@@ -383,13 +372,13 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
      * the tag pose in the field frame.
      */
     private Pose3d estimatedTagInField(
-            Transform3d cameraOffset, Pose2d historicalPose, Transform3d tagInCamera) {
+            Transform3d cameraOffset, Pose2d pose, Transform3d tagInCamera) {
         // Field-to-robot
-        Pose3d historicalPose3d = new Pose3d(historicalPose);
+        Pose3d pose3d = new Pose3d(pose);
         // Field-to-robot plus robot-to-camera = field-to-camera
-        Pose3d historicalCameraInField = historicalPose3d.transformBy(cameraOffset);
+        Pose3d cameraPose = pose3d.transformBy(cameraOffset);
         // Given the historical pose, where do we think the tag is?
-        return historicalCameraInField.transformBy(tagInCamera);
+        return cameraPose.transformBy(tagInCamera);
     }
 
     /**

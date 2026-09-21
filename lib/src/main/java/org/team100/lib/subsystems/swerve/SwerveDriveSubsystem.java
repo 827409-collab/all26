@@ -25,7 +25,6 @@ import org.team100.lib.state.StateSE2;
 import org.team100.lib.state.VelocityControlSE2;
 import org.team100.lib.subsystems.se2.VelocitySubsystemSE2;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.subsystems.swerve.module.state.SwerveModulePositions;
 import org.team100.lib.subsystems.swerve.module.state.SwerveModuleStates;
 import org.team100.lib.uncertainty.IsotropicNoiseSE2;
 import org.team100.lib.visualization.VizUtil;
@@ -155,6 +154,13 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
         return m_stateCache.get();
     }
 
+    /**
+     * Tags outside this radius are ignored.
+     */
+    public void setHeedRadiusM(double heedRadiusM) {
+        m_estimate.setHeedRadiusM(heedRadiusM);
+    }
+
     ///////////////////////////////////////////////////////////////
 
     /**
@@ -277,16 +283,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
      * should be cached (thus refreshed once per cycle).
      */
     private StateSE2 update() {
-        double now = Takt.get();
-        SwerveModulePositions positions = m_swerveLocal.positions();
         // The estimate is used for many things downstream; noise there is bad.
         // The estimator itself should have enough controls to make the estimate
         // arbitrarily smooth.
-        StateSE2 state = m_estimate.apply(now);
-        if (DEBUG) {
-            System.out.printf("update() positions %s estimated pose: %s\n", positions, state);
-        }
-        return state;
+        return m_estimate.apply(Takt.get());
     }
 
 }
