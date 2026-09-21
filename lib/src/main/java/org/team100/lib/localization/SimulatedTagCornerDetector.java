@@ -12,6 +12,8 @@ import java.util.function.DoubleSupplier;
 import org.team100.lib.camera.Camera;
 import org.team100.lib.camera.Offset;
 import org.team100.lib.coherence.Takt;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Metrics;
 import org.team100.lib.state.StateSE2;
@@ -49,7 +51,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * 
  * So fix that.
  */
-public class SimulatedTagCornerDetector implements Runnable {
+public class SimulatedTagCornerDetector {
     private static final boolean DEBUG = false;
     private static final boolean PUBLISH_DEBUG = false;
     // these are the extents of the normalized image coordinates
@@ -117,22 +119,19 @@ public class SimulatedTagCornerDetector implements Runnable {
         }
     }
 
-    public static Runnable get(AprilTagFieldLayoutWithCorrectOrientation layout, SwerveHistory history) {
-        if (RobotBase.isReal()) {
-            // Real robots get an empty simulated tag detector.
-            return () -> {
-            };
-        } else {
-            // In simulation, we want the real simulated tag detector.
-            return new SimulatedTagCornerDetector(
-                    List.of(Camera.SIM0, Camera.SIM1, Camera.SIM2, Camera.SIM3),
-                    layout,
-                    history);
-        }
+    public static SimulatedTagCornerDetector get(
+            AprilTagFieldLayoutWithCorrectOrientation layout, SwerveHistory history) {
+        return new SimulatedTagCornerDetector(
+                List.of(Camera.SIM0, Camera.SIM1, Camera.SIM2, Camera.SIM3),
+                layout,
+                history);
     }
 
-    @Override
     public void run() {
+        if (RobotBase.isReal() && !Experiments.INSTANCE.enabled(Experiment.SimulateCameras)) {
+            // Real robot, but without simulated cameras.
+            return;
+        }
         if (DEBUG)
             System.out.println("simulated tag detector");
         Optional<Alliance> opt = DriverStation.getAlliance();
@@ -182,7 +181,7 @@ public class SimulatedTagCornerDetector implements Runnable {
                     if (DEBUG) {
                         System.out.print("VISIBLE ");
                     }
-    
+
                     double[] corners = m_corners.corners(camera, GeometryUtil.xForwardToZForward(tagInCamera));
                     blips.add(new BlipWithCorners(time, tagId, tofloat(corners), tagInCamera));
                 } else {

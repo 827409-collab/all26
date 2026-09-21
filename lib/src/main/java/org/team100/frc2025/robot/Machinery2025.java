@@ -63,7 +63,7 @@ public class Machinery2025 {
     private final Runnable m_combinedViz;
     private final Runnable m_climberViz;
     private final SwerveModuleCollection m_modules;
-    private final Runnable m_simulatedTagDetector;
+    private final SimulatedTagDetector m_simulatedTagDetector;
     private final Runnable m_targetSimulator;
     private final LEDIndicator m_leds;
 
