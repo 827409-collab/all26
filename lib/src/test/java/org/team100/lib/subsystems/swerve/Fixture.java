@@ -59,7 +59,7 @@ public class Fixture {
         swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         // uses simulated modules
         collection = SwerveModuleCollection.get(
-                logger, currentLog, new CurrentLimit(10, 20), new CurrentLimit(10, 20), swerveKinodynamics);
+                logger, currentLog, new CurrentLimit(10, 20), new CurrentLimit(10, 20));
         gyro = new SimulatedGyro(logger, swerveKinodynamics, collection, 0);
         swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
         history = new SwerveHistory(

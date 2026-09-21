@@ -2,7 +2,6 @@ package org.team100.frc2026.robot;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 import org.team100.frc2026.field.FieldConstants2026;
 import org.team100.frc2026.subsystems.Intake;
@@ -13,7 +12,6 @@ import org.team100.lib.coherence.Takt;
 import org.team100.lib.controller.se2.ControllerSE2;
 import org.team100.lib.controller.se2.FullStateControllerSE2;
 import org.team100.lib.indicator.Beeper;
-import org.team100.lib.localization.AddOdometryNoise;
 import org.team100.lib.localization.AprilTagCornerRobotLocalizer;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.GroundTruth;
@@ -42,9 +40,7 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -107,8 +103,7 @@ public class Machinery {
                 driveLog,
                 currentLog,
                 CurrentLimits.DRIVE,
-                CurrentLimits.STEERING,
-                m_swerveKinodynamics);
+                CurrentLimits.STEERING);
         Gyro gyro = GyroFactory.get(
                 driveLog,
                 m_swerveKinodynamics,
@@ -123,15 +118,12 @@ public class Machinery {
                 Pose2d.kZero,
                 IsotropicNoiseSE2.high(),
                 Takt.get());
-        UnaryOperator<Twist2d> odometryNoise = RobotBase.isReal() ? UnaryOperator.identity() : new AddOdometryNoise();
-        OdometryUpdater odometryUpdater = new OdometryUpdater(
+        OdometryUpdater odometryUpdater =  OdometryUpdater.normal(
                 driveLog,
                 m_swerveKinodynamics,
                 gyro,
                 history,
-                m_modules::positions,
-                odometryNoise,
-                false);
+                m_modules::positions);
         // odometryUpdater.m_debug = true;
         odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
         m_visionUpdater = new NudgingVisionUpdater(

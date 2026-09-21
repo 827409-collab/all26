@@ -110,8 +110,7 @@ public class Machinery2025 {
                 driveLog,
                 currentLog,
                 new CurrentLimit(DRIVE_STATOR_LIMIT, DRIVE_SUPPLY_LIMIT),
-                new CurrentLimit(30, 20),
-                m_swerveKinodynamics);
+                new CurrentLimit(30, 20));
         final Gyro gyro = GyroFactory.get(
                 driveLog,
                 m_swerveKinodynamics,
