@@ -99,7 +99,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0); // zero initial time
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.high(), 0);
         Pose2d p = history.apply(0).pose();
@@ -135,7 +136,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
@@ -184,7 +186,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
@@ -234,7 +237,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
@@ -290,7 +294,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
 
@@ -417,7 +422,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
@@ -547,7 +553,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
@@ -612,7 +619,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.1, 0.1), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
 
@@ -677,7 +685,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.05, 0.05), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
 
@@ -743,7 +752,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0);
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, history, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, history,
+                () -> positions, UnaryOperator.identity(), true);
         positions = positionZero;
         ou.reset(Pose2d.kZero, IsotropicNoiseSE2.fromStdDev(0.01, 0.01), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, history, ou);
@@ -871,7 +881,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0); // zero initial time
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, estimator, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, estimator,
+                () -> positions, UnaryOperator.identity(), true);
 
         positions = new SwerveModulePositions(
                 new SwerveModulePosition100(),
@@ -970,7 +981,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
             errorSum += error;
 
             if (DEBUG) {
-                System.out.printf("SwerveDrivePoseEstimator100Test: t %4.2f GT (%6.3f, %6.3f, %6.3f) xhat (%6.3f, %6.3f, %6.3f)\n",
+                System.out.printf(
+                        "SwerveDrivePoseEstimator100Test: t %4.2f GT (%6.3f, %6.3f, %6.3f) xhat (%6.3f, %6.3f, %6.3f)\n",
                         t,
                         groundTruthState.poseMeters.getX(),
                         groundTruthState.poseMeters.getY(),
@@ -1030,7 +1042,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0); // zero initial time
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, estimator, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, estimator,
+                () -> positions, UnaryOperator.identity(), true);
         positions = new SwerveModulePositions(fl, fr, bl, br);
         ou.reset(new Pose2d(1, 2, Rotation2d.fromDegrees(270)), IsotropicNoiseSE2.high(), 0);
         NudgingVisionUpdater vu = new NudgingVisionUpdater(logger, estimator, ou);
@@ -1080,7 +1093,8 @@ class SwerveDrivePoseEstimator100Test implements Timeless {
                 0); // zero initial time
 
         OdometryUpdater ou = new OdometryUpdater(
-                logger, kinodynamics, gyro, estimator, () -> positions, UnaryOperator.identity());
+                logger, kinodynamics, gyro, estimator,
+                () -> positions, UnaryOperator.identity(), true);
         positions = new SwerveModulePositions(
                 new SwerveModulePosition100(),
                 new SwerveModulePosition100(),

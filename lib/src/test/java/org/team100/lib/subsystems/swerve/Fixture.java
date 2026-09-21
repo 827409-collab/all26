@@ -75,7 +75,8 @@ public class Fixture {
         // history.reset(gyro.getYawNWU(), collection.positions(), Pose2d.kZero, 0);
 
         odometryUpdater = new OdometryUpdater(
-                logger, swerveKinodynamics, gyro, history, collection::positions, UnaryOperator.identity());
+                logger, swerveKinodynamics, gyro, history,
+                collection::positions, UnaryOperator.identity(), true);
         odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high(), 0);
 
         final NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
@@ -84,7 +85,7 @@ public class Fixture {
         final AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
 
         AprilTagRobotLocalizer localizer = new AprilTagRobotLocalizer(
-                logger, fieldLogger, layout, history, visionUpdater,DriverStation::getAlliance);
+                logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
         estimate = new FreshSwerveEstimate(
                 localizer::update, odometryUpdater::update, history);
 

@@ -66,7 +66,7 @@ public class GroundTruth {
             OdometryUpdater groundTruthUpdater = new OdometryUpdater(
                     simLog, m_swerveKinodynamics, groundTruthGyro,
                     groundTruthHistory, m_modules::positions,
-                    UnaryOperator.identity());
+                    UnaryOperator.identity(), true);
             m_groundTruthResetter = (p) -> groundTruthUpdater.reset(p, IsotropicNoiseSE2.high());
 
             GroundTruthCache groundTruthCache = new GroundTruthCache(
@@ -79,7 +79,7 @@ public class GroundTruth {
             // Simulated camera uses the ground truth because the real cameras are not aware
             // of the pose estimate.
             // m_simulatedTagDetector = SimulatedTagDetector.get(
-                    // layout, groundTruthHistory);
+            // layout, groundTruthHistory);
             m_simulatedTagDetector = SimulatedTagCornerDetector.get(
                     layout, groundTruthHistory);
         }

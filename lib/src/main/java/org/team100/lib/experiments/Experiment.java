@@ -50,7 +50,13 @@ public enum Experiment {
      * Useful for testing real-robot localization without a physical camera
      * attached. The simulated camera is used by default in simulation.
      */
-    SimulateCameras("Use simulated camera in real robot");
+    SimulateCameras("Use simulated camera in real robot"),
+    /**
+     * Ignore Odometry.
+     * 
+     * Useful for testing vision.
+     */
+    IgnoreOdometry("Ignore odometry input");
 
     /** Show this at startup */
     public final String description;

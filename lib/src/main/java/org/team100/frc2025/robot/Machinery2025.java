@@ -128,7 +128,7 @@ public class Machinery2025 {
                 Takt.get());
         final OdometryUpdater odometryUpdater = new OdometryUpdater(
                 driveLog, m_swerveKinodynamics, gyro, history, m_modules::positions,
-                UnaryOperator.identity());
+                UnaryOperator.identity(), false);
         odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
         final NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
                 driveLog, history, odometryUpdater);
