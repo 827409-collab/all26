@@ -245,26 +245,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
                 .withName("Drive Spin Left");
     }
 
-    /**
-     * This can conflict with the apriltag input and cause the robot to lose its
-     * mind. Do not use it without understanding it and testing it in a safe
-     * environment.
-     */
-    public Command resetPoseCommand(Pose2d pose) {
-        return runOnce(() -> resetPose(pose, IsotropicNoiseSE2.high()));
-    }
-
-    /**
-     * This can conflict with the apriltag input and cause the robot to lose its
-     * mind. Do not use it without understanding it and testing it in a safe
-     * environment.
-     */
-    public Command setRotationCommand(Rotation2d rotation) {
-        return runOnce(() -> resetPose(
-                new Pose2d(getPose().getTranslation(), rotation),
-                IsotropicNoiseSE2.high()));
-    }
-
     @Override
     public Command play(double freq) {
         return run(() -> {

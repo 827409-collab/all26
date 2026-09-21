@@ -23,16 +23,18 @@ public class SwerveDriveFactory {
             LoggerFactory fieldLogger,
             SwerveKinodynamics swerveKinodynamics,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            NudgingVisionUpdater m_visionUpdater,
             OdometryUpdater odometryUpdater,
             SwerveHistory history,
             SwerveModuleCollection modules) {
+
+        NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
+                driveLog, history, odometryUpdater);
         AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
                 driveLog,
                 fieldLogger,
                 layout,
                 history,
-                m_visionUpdater,
+                visionUpdater,
                 DriverStation::getAlliance);
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
                 localizer,

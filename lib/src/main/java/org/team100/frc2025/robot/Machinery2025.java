@@ -14,7 +14,6 @@ import org.team100.lib.coherence.Takt;
 import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.NudgingVisionUpdater;
 import org.team100.lib.localization.OdometryUpdater;
 import org.team100.lib.localization.SimulatedTagDetector;
 import org.team100.lib.localization.SwerveHistory;
@@ -125,8 +124,6 @@ public class Machinery2025 {
                 driveLog, m_swerveKinodynamics, gyro, history, m_modules::positions,
                 UnaryOperator.identity(), false);
         odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
-        final NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
-                driveLog, history, odometryUpdater);
 
         ////////////////////////////////////////////////////////////
         //
@@ -152,7 +149,6 @@ public class Machinery2025 {
                 fieldLogger,
                 m_swerveKinodynamics,
                 layout,
-                visionUpdater,
                 odometryUpdater,
                 history,
                 m_modules);
@@ -167,7 +163,6 @@ public class Machinery2025 {
         // LED INDICATOR
         //
         m_leds = new LEDIndicator(
-                visionUpdater,
                 m_manipulator,
                 m_climberIntake);
         m_beeper = new Beeper(m_mech, m_manipulator, m_drive);

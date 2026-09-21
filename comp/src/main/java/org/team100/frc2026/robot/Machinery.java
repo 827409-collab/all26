@@ -14,7 +14,6 @@ import org.team100.lib.controller.se2.FullStateControllerSE2;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.GroundTruth;
-import org.team100.lib.localization.NudgingVisionUpdater;
 import org.team100.lib.localization.OdometryUpdater;
 import org.team100.lib.localization.SwerveHistory;
 import org.team100.lib.logging.LoggerFactory;
@@ -67,7 +66,6 @@ public class Machinery {
 
     public final TrajectoryVisualization m_trajectoryViz;
     public final SwerveKinodynamics m_swerveKinodynamics;
-    public final NudgingVisionUpdater m_visionUpdater;
     public final SwerveLimiter m_limiter;
     public final SwerveDriveSubsystem m_drive;
     public final Beeper m_beeper;
@@ -121,8 +119,6 @@ public class Machinery {
                 history,
                 m_modules::positions);
         odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
-        m_visionUpdater = new NudgingVisionUpdater(
-                driveLog, history, odometryUpdater);
 
         ////////////////////////////////////////////////////////////
         //
@@ -142,9 +138,7 @@ public class Machinery {
                 driveLog,
                 fieldLogger,
                 m_swerveKinodynamics,
-                // m_localizer,
                 layout,
-                m_visionUpdater,
                 odometryUpdater,
                 history,
                 m_modules);
@@ -211,9 +205,16 @@ public class Machinery {
      * new pose.
      */
     public void resetPose(Pose2d p) {
-        m_drive.resetPose(p, IsotropicNoiseSE2.high());
+        resetPose(new NoisyPose2d(p, IsotropicNoiseSE2.high()));
+    }
+
+    /**
+     * Purge the history and assert the given pose as the current estimate.
+     */
+    public void resetPose(NoisyPose2d p) {
+        m_drive.resetPose(p.pose(), p.noise());
         // also reset the ground truth, otherwise the cameras retain the old pose
-        m_groundTruth.resetPose(p);
+        m_groundTruth.resetPose(p.pose());
     }
 
     /** Erase the pose history, use high variance for pose estimate. */
@@ -240,12 +241,14 @@ public class Machinery {
      */
     public Command zeroRotation() {
         return Commands.runOnce(() -> {
-            Pose2d p = m_drive.getPose();
-            NoisyPose2d np = new NoisyPose2d(
-                    new Pose2d(p.getX(), p.getY(), Rotation2d.kZero),
-                    IsotropicNoiseSE2.fromStdDev(10, 0.001));
+            Translation2d t = m_drive.getPose().getTranslation();
+            Pose2d p = new Pose2d(t, Rotation2d.kZero);
+            // no influence over cartesian variance
+            // a strong claim about rotation variance
+            IsotropicNoiseSE2 noise = IsotropicNoiseSE2.fromStdDev(10, 0.001);
+            NoisyPose2d np = new NoisyPose2d(p, noise);
             System.out.printf("*** ZERO ROTATION: %s\n", np);
-            m_visionUpdater.put(Takt.get(), np);
+            resetPose(np);
         }, m_drive);
     }
 
