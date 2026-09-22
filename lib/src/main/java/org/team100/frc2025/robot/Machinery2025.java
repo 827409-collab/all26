@@ -13,6 +13,7 @@ import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AddOdometryNoise;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.AprilTagVisualizer;
 import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.GroundTruth;
 import org.team100.lib.logging.LoggerFactory;
@@ -31,6 +32,7 @@ import org.team100.lib.visualization.RobotPoseVisualization;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -52,6 +54,7 @@ public class Machinery2025 {
     private static final LoggerFactory fieldLogger = Logging.instance().fieldLogger;
 
     private final RobotPoseVisualization m_robotViz;
+    private final AprilTagVisualizer m_tagViz;
     private final Runnable m_combinedViz;
     private final Runnable m_climberViz;
     private final SwerveModuleCollection m_modules;
@@ -99,11 +102,12 @@ public class Machinery2025 {
                 layout,
                 gyro,
                 swerveLocal);
-
         m_drive = new SwerveDriveSubsystem(
                 driveLog,
                 estimate,
                 swerveLocal);
+        m_tagViz = new AprilTagVisualizer(
+                driveLog, fieldLogger, m_drive::getState, layout, DriverStation::getAlliance);
         m_robotViz = new RobotPoseVisualization(
                 fieldLogger, () -> m_drive.getState().pose(), "robot");
 
@@ -150,6 +154,7 @@ public class Machinery2025 {
         m_robotViz.run();
         m_combinedViz.run();
         m_climberViz.run();
+        m_tagViz.update();
     }
 
     public void close() {

@@ -26,14 +26,11 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public class FreshSwerveEstimate {
     private static final boolean DEBUG = false;
-
     private final SwerveHistory m_history;
     private final AprilTagCornerRobotLocalizer m_localizer;
-    private final AprilTagVisualizer m_viz;
     private final OdometryUpdater m_odometryUpdate;
     /** Side effect mutates history. */
     private final SideEffect m_localizerCache;
-    private final SideEffect m_vizCache;
     /** Side effect mutates history. */
     private final SideEffect m_odometryCache;
 
@@ -69,10 +66,7 @@ public class FreshSwerveEstimate {
                 layout,
                 visionUpdater,
                 DriverStation::getAlliance);
-        m_viz = new AprilTagVisualizer(
-                driveLog, fieldLogger, m_history, layout, DriverStation::getAlliance);
         m_localizerCache = Cache.ofSideEffect(m_localizer::update);
-        m_vizCache = Cache.ofSideEffect(m_viz::update);
         m_odometryCache = Cache.ofSideEffect(m_odometryUpdate::update);
     }
 
@@ -87,7 +81,6 @@ public class FreshSwerveEstimate {
     public StateSE2 get(double timestampS) {
         // run our dependencies if they haven't already
         m_localizerCache.run();
-        m_vizCache.run();
         m_odometryCache.run();
         // query the history
         StateSE2 state = m_history.get(timestampS);

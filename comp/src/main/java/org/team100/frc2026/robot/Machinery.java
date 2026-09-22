@@ -12,6 +12,7 @@ import org.team100.frc2026.targeting.Targeter;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AddOdometryNoise;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.AprilTagVisualizer;
 import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.GroundTruth;
 import org.team100.lib.logging.LoggerFactory;
@@ -35,6 +36,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -45,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
  */
 public class Machinery {
     private final RobotPoseVisualization m_robotViz;
+    private final AprilTagVisualizer m_tagViz;
     private final SwerveModuleCollection m_modules;
     private final GroundTruth m_groundTruth;
 
@@ -96,7 +99,8 @@ public class Machinery {
                 driveLog,
                 estimate,
                 swerveLocal);
-
+        m_tagViz = new AprilTagVisualizer(
+                driveLog, fieldLogger, m_drive::getState, layout, DriverStation::getAlliance);
         m_robotViz = new RobotPoseVisualization(
                 fieldLogger, () -> m_drive.getState().pose(), "robot");
 
@@ -207,6 +211,7 @@ public class Machinery {
     public void periodic() {
         m_groundTruth.periodic();
         m_robotViz.run();
+        m_tagViz.update();
     }
 
     /**

@@ -30,11 +30,11 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * the tag's "apparent position" on the Field2d widget, and in AdvantageScope
  * using the Vision Target feature.
  * 
- * The apparent position should match the actual position, if the cameras are
- * calibrated correctly, and if the camera/robot clocks are in sync.
+ * Each apparent tag position should match the actual position, if the cameras
+ * are calibrated correctly, and if the camera/robot clocks are in sync.
  * 
  * This is kinda useful for debugging, but it's not *that* useful. It used to be
- * part of AprilTagCornerRobotLocalizer, and it duplicates its filter.
+ * part of AprilTagCornerRobotLocalizer.
  */
 public class AprilTagVisualizer extends CameraReader<BlipWithCorners> {
     private static final boolean DEBUG = false;
@@ -49,7 +49,6 @@ public class AprilTagVisualizer extends CameraReader<BlipWithCorners> {
     private final DoubleArrayLogger m_log_allTags;
     private final DoubleLogger m_log_tag_error;
 
-    // TODO: don't use SwerveHistory here, use the normal drivetrain history
     public AprilTagVisualizer(
             LoggerFactory parent,
             LoggerFactory fieldLogger,
