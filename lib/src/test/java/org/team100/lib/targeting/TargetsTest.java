@@ -92,7 +92,7 @@ public class TargetsTest implements Timeless {
         Thread.sleep(100);
 
         stepTime();
-        writer.update();
+        writer.run();
 
         // wait for NT rate-limiting
         Thread.sleep(100);
@@ -131,7 +131,7 @@ public class TargetsTest implements Timeless {
         Thread.sleep(100);
 
         stepTime();
-        writer.update();
+        writer.run();
 
         // wait for NT rate-limiting
         Thread.sleep(100);
@@ -175,7 +175,7 @@ public class TargetsTest implements Timeless {
         Thread.sleep(100);
 
         stepTime();
-        writer.update();
+        writer.run();
 
         // wait for NT rate-limiting
         Thread.sleep(100);
@@ -218,7 +218,7 @@ public class TargetsTest implements Timeless {
         Thread.sleep(100);
 
         stepTime();
-        writer.update();
+        writer.run();
 
         // wait for NT rate-limiting
         Thread.sleep(100);

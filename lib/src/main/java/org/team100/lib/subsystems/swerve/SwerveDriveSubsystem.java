@@ -155,6 +155,13 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
     }
 
     /**
+     * Sample the past state at the specified time.
+     */
+    public StateSE2 getState(double timeSec) {
+        return m_estimate.apply(timeSec);
+    }
+
+    /**
      * Tags outside this radius are ignored.
      */
     public void setHeedRadiusM(double heedRadiusM) {
@@ -222,7 +229,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
         return run(() -> setRawModuleStates(
                 SwerveModuleStates.aheadSlow, SwerveEffort.ZERO))
                 .withName("Drive Ahead");
-
     }
 
     /**

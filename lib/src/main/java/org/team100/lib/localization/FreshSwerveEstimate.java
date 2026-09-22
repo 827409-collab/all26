@@ -1,7 +1,5 @@
 package org.team100.lib.localization;
 
-import java.util.function.DoubleFunction;
-
 import org.team100.lib.coherence.Cache;
 import org.team100.lib.coherence.SideEffect;
 import org.team100.lib.state.StateSE2;
@@ -17,7 +15,7 @@ public class FreshSwerveEstimate {
     private static final boolean DEBUG = false;
 
     /** SwerveHistory delegate. */
-    private final DoubleFunction<StateSE2>  m_history;
+    private final StateSampler m_history;
     private final AprilTagCornerRobotLocalizer m_localizer;
     /** Side effect mutates history. */
     private final SideEffect m_vision;
@@ -31,12 +29,12 @@ public class FreshSwerveEstimate {
      */
     public FreshSwerveEstimate(
             AprilTagCornerRobotLocalizer localizer,
-            Runnable odometryUpdate,
-            DoubleFunction<StateSE2>  history) {
+            OdometryUpdater odometryUpdate,
+            StateSampler history) {
         m_localizer = localizer;
         m_history = history;
         m_vision = Cache.ofSideEffect(localizer::update);
-        m_odometry = Cache.ofSideEffect(odometryUpdate);
+        m_odometry = Cache.ofSideEffect(odometryUpdate::update);
     }
 
     /**

@@ -9,6 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.sensor.gyro.SimulatedGyro;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.module.SwerveModuleCollection;
+import org.team100.lib.targeting.SimulatedTargetWriter;
 import org.team100.lib.uncertainty.IsotropicNoiseSE2;
 import org.team100.lib.uncertainty.VariableR1;
 import org.team100.lib.visualization.RobotPoseVisualization;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public class GroundTruth {
     private final SimulatedTagCornerDetector m_simulatedTagDetector;
+    private final SimulatedTargetWriter m_targetSimulator;
     private final OdometryUpdater m_groundTruthUpdater;
     private final RobotPoseVisualization m_groundTruthViz;
 
@@ -72,7 +74,7 @@ public class GroundTruth {
         // layout, groundTruthHistory);
         m_simulatedTagDetector = SimulatedTagCornerDetector.get(
                 layout, groundTruthHistory);
-
+        m_targetSimulator = SimulatedTargetWriter.get(simLog, groundTruthHistory);
     }
 
     /**
@@ -87,6 +89,9 @@ public class GroundTruth {
         m_groundTruthUpdater.reset(p, IsotropicNoiseSE2.high());
     }
 
+    /**
+     * Show the simulated tags and targets, and the ground-truth robot pose.
+     */
     public void periodic() {
         if (RobotBase.isReal() && !Experiments.INSTANCE.enabled(Experiment.SimulateCameras)) {
             // Real robot, but without simulated cameras.
@@ -94,6 +99,7 @@ public class GroundTruth {
         }
         // publish the simulated tag sightings.
         m_simulatedTagDetector.run();
+        m_targetSimulator.run();
         // publish ground truth pose
         if (m_groundTruthViz != null)
             m_groundTruthViz.run();

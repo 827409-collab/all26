@@ -196,7 +196,7 @@ public class DriveWithTrajectoryTest implements Timeless {
         AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
                 logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer, odometryUpdater::update, history);
+                localizer, odometryUpdater, history);
         SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(

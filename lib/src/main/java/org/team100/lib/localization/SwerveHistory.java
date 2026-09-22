@@ -2,7 +2,6 @@ package org.team100.lib.localization;
 
 import java.util.Map.Entry;
 import java.util.SortedMap;
-import java.util.function.DoubleFunction;
 
 import org.team100.lib.geometry.se2.VelocitySE2;
 import org.team100.lib.logging.Level;
@@ -30,7 +29,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * 
  * Other SwerveModel consumers should use SwerveModelEstimate.
  */
-public class SwerveHistory implements DoubleFunction<StateSE2> {
+public class SwerveHistory implements StateSampler {
     /**
      * The buffer only needs to be long enough to catch stale-but-still-helpful
      * vision updates.

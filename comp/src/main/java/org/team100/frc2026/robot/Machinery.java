@@ -8,16 +8,10 @@ import org.team100.frc2026.subsystems.Intake;
 import org.team100.frc2026.subsystems.IntakeExtend;
 import org.team100.frc2026.subsystems.Shooter;
 import org.team100.frc2026.targeting.Targeter;
-import org.team100.lib.coherence.Takt;
-import org.team100.lib.controller.se2.ControllerSE2;
-import org.team100.lib.controller.se2.FullStateControllerSE2;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.GroundTruth;
-import org.team100.lib.localization.OdometryUpdater;
-import org.team100.lib.localization.SwerveHistory;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.Logging;
 import org.team100.lib.logging.TotalCurrentLog;
 import org.team100.lib.sensor.gyro.Gyro;
 import org.team100.lib.sensor.gyro.GyroFactory;
@@ -25,20 +19,18 @@ import org.team100.lib.subsystems.swerve.SwerveDriveFactory;
 import org.team100.lib.subsystems.swerve.SwerveDriveSubsystem;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamicsFactory;
-import org.team100.lib.subsystems.swerve.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.subsystems.swerve.module.SwerveModuleCollection;
 import org.team100.lib.targeting.CachedSolution;
 import org.team100.lib.targeting.ProxySolver;
+import org.team100.lib.targeting.Targets;
 import org.team100.lib.uncertainty.IsotropicNoiseSE2;
 import org.team100.lib.uncertainty.NoisyPose2d;
-import org.team100.lib.uncertainty.VariableR1;
 import org.team100.lib.visualization.RobotPoseVisualization;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -47,52 +39,31 @@ import edu.wpi.first.wpilibj2.command.Commands;
  * that the Binder and Auton classes may want to use.
  */
 public class Machinery {
-    // for background on drive current limits:
-    // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
-    // https://www.chiefdelphi.com/t/the-brushless-era-needs-sensible-default-current-limits/461056/51
-    // https://docs.google.com/document/d/10uXdmu62AFxyolmwtDY8_9UNnci7eVcev4Y64ZS0Aqk
-    // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L195
-    // 2/26/25: Joel updated the supply limit to 90A, see 1678 code above. This is
-    // essentially unlimited, so you'll need to run some other kind of limiter (e.g.
-    // acceleration) to keep from browning out.
-    // 3/14/26 lowered from 90 to 80
-
-    private static final LoggerFactory logger = Logging.instance().rootLogger;
-    private static final LoggerFactory fieldLogger = Logging.instance().fieldLogger;
-
-    private final Runnable m_robotViz;
+    private final RobotPoseVisualization m_robotViz;
     private final SwerveModuleCollection m_modules;
     private final GroundTruth m_groundTruth;
 
     public final TrajectoryVisualization m_trajectoryViz;
     public final SwerveKinodynamics m_swerveKinodynamics;
-    public final SwerveLimiter m_limiter;
     public final SwerveDriveSubsystem m_drive;
     public final Beeper m_beeper;
 
     public final ProxySolver m_solver;
     public final CachedSolution m_cachedSolution;
+    public final Targets m_targets;
 
     public final Shooter m_shooter;
     public final Intake m_intake;
     public final IntakeExtend m_intakeExtend;
-    public final ControllerSE2 m_holonomicController;
 
-    public Machinery(TotalCurrentLog currentLog) {
-
-        ////////////////////////////////////////////////////////////
-        //
-        // VISUALIZATIONS
-        //
-        m_trajectoryViz = new TrajectoryVisualization(fieldLogger);
-
-        ////////////////////////////////////////////////////////////
-        //
-        // POSE ESTIMATION
-        //
+    public Machinery(LoggerFactory logger, LoggerFactory fieldLogger, TotalCurrentLog currentLog) {
         LoggerFactory driveLog = logger.name("Drive");
-        m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
 
+        ////////////////////////////////////////////////////////////
+        //
+        // DRIVETRAIN
+        //
+        m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 currentLog,
@@ -102,45 +73,13 @@ public class Machinery {
                 driveLog,
                 m_swerveKinodynamics,
                 m_modules);
-        SwerveHistory history = new SwerveHistory(
-                driveLog,
-                m_swerveKinodynamics,
-                0.2,
-                gyro.getYawNWU(),
-                VariableR1.fromStdDev(0, 1),
-                m_modules.positions(),
-                Pose2d.kZero,
-                IsotropicNoiseSE2.high(),
-                Takt.get());
-        OdometryUpdater odometryUpdater = OdometryUpdater.normal(
-                driveLog,
-                m_swerveKinodynamics,
-                gyro,
-                history,
-                m_modules::positions);
-        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
-
-        ////////////////////////////////////////////////////////////
-        //
-        // CAMERA READERS
-        //
         AprilTagFieldLayoutWithCorrectOrientation layout = AprilTagFieldLayoutWithCorrectOrientation.getLayout();
-
-        ////////////////////////////////////////////////////////////
-        //
-        // DRIVETRAIN
-        //
-        m_limiter = new SwerveLimiter(
-                driveLog,
-                m_swerveKinodynamics,
-                RobotController::getBatteryVoltage);
         m_drive = SwerveDriveFactory.get(
                 driveLog,
                 fieldLogger,
                 m_swerveKinodynamics,
                 layout,
-                odometryUpdater,
-                history,
+                gyro,
                 m_modules);
         m_robotViz = new RobotPoseVisualization(
                 fieldLogger, () -> m_drive.getState().pose(), "robot");
@@ -149,6 +88,8 @@ public class Machinery {
         //
         // TARGETING
         //
+
+        // Targeting from 2026: aim at the hub, or at the alliance zone.
 
         Targeter targeter = new Targeter(() -> m_drive.getState().translation());
         m_solver = new ProxySolver(targeter::forRange);
@@ -161,42 +102,36 @@ public class Machinery {
         m_cachedSolution = new CachedSolution(
                 fieldLogger, m_drive::getState, target, m_solver);
 
+        // Targeting from 2025: the cameras are looking for game pieces.
+
+        m_targets = new Targets(driveLog, fieldLogger, 0.2, (t) -> m_drive.getState(t));
+
         ////////////////////////////////////////////////////////////
         //
         // SUBSYSTEMS
         //
-
         m_intake = new Intake(logger, currentLog);
         m_intakeExtend = new IntakeExtend(logger, currentLog);
         m_shooter = new Shooter(logger, currentLog, m_cachedSolution::speed);
+
+        ////////////////////////////////////////////////////////////
+        //
+        // VISUALIZATIONS
+        //
+        m_trajectoryViz = new TrajectoryVisualization(fieldLogger);
+
+        ////////////////////////////////////////////////////////////
+        //
+        // INDICATOR
+        //
+        // Beeper makes beeps to warn about testing.
+        m_beeper = new Beeper(m_drive);
 
         ////////////////////////////////////////////////////////////
         ///
         /// GROUND TRUTH
         ///
         m_groundTruth = new GroundTruth(fieldLogger, logger, m_swerveKinodynamics, m_modules, layout);
-
-        ////////////////////////////////////////////////////////////
-        //
-        // INDICATOR
-        //
-        // There's no LED this year, unless we need it for testing or setup.
-        // Beeper makes beeps to warn about testing.
-        m_beeper = new Beeper(m_drive);
-
-        ////////////////////////////////////////////////////////////
-        //
-        // CONTROLLER
-        //
-        m_holonomicController = new FullStateControllerSE2(driveLog,
-                2.9, // P for x/y
-                3.5, // P for theta
-                0.025, // P for v
-                0.01, // P for omega
-                0.02, // x tolerance
-                0.3, // theta tolerance
-                1, // v tolerance
-                1);// omega tolerance
     }
 
     /**
@@ -252,9 +187,9 @@ public class Machinery {
         }, m_drive);
     }
 
+    /** Generally for simulation and visualization */
     public void periodic() {
         m_groundTruth.periodic();
-        // publish pose estimate
         m_robotViz.run();
     }
 

@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 /**
  * Observes a pose supplier, publishes to the glass Field2d widget.
  */
-public class RobotPoseVisualization implements Runnable {
+public class RobotPoseVisualization {
     private final DoubleArrayLogger m_log_field_robot;
     private final Supplier<Pose2d> m_pose;
 
@@ -23,7 +23,7 @@ public class RobotPoseVisualization implements Runnable {
         m_pose = pose;
     }
 
-    @Override
+    /** Show the robot pose on the Field2d widget. */
     public void run() {
         m_log_field_robot.log(this::poseArray);
     }

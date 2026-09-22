@@ -76,7 +76,7 @@ class SwerveDriveSubsystemTest implements Timeless {
         AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
                 logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer, odometryUpdater::update, history);
+                localizer, odometryUpdater, history);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,
@@ -161,7 +161,7 @@ class SwerveDriveSubsystemTest implements Timeless {
         AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
                 logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer, odometryUpdater::update, history);
+                localizer, odometryUpdater, history);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,

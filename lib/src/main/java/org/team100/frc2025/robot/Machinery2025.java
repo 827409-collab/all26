@@ -1,8 +1,5 @@
 package org.team100.frc2025.robot;
 
-import java.io.IOException;
-import java.util.function.UnaryOperator;
-
 import org.team100.frc2025.CalgamesArm.CalgamesMech;
 import org.team100.frc2025.CalgamesArm.CalgamesViz;
 import org.team100.frc2025.Climber.Climber2025;
@@ -10,13 +7,10 @@ import org.team100.frc2025.Climber.ClimberIntake;
 import org.team100.frc2025.Climber.ClimberVisualization;
 import org.team100.frc2025.grip.Manipulator;
 import org.team100.frc2025.indicator.LEDIndicator;
-import org.team100.lib.coherence.Takt;
 import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.OdometryUpdater;
-import org.team100.lib.localization.SimulatedTagDetector;
-import org.team100.lib.localization.SwerveHistory;
+import org.team100.lib.localization.GroundTruth;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -27,16 +21,10 @@ import org.team100.lib.subsystems.swerve.SwerveDriveSubsystem;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.subsystems.swerve.module.SwerveModuleCollection;
-import org.team100.lib.targeting.SimulatedTargetWriter;
 import org.team100.lib.targeting.Targets;
-import org.team100.lib.uncertainty.IsotropicNoiseSE2;
-import org.team100.lib.uncertainty.VariableR1;
 import org.team100.lib.util.CanId;
 import org.team100.lib.visualization.RobotPoseVisualization;
 import org.team100.lib.visualization.TrajectoryVisualization;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * This should contain all the hardware of the robot: all the subsystems etc
@@ -56,13 +44,12 @@ public class Machinery2025 {
     private static final LoggerFactory logger = Logging.instance().rootLogger;
     private static final LoggerFactory fieldLogger = Logging.instance().fieldLogger;
 
-    private final Runnable m_robotViz;
+    private final RobotPoseVisualization m_robotViz;
     private final Runnable m_combinedViz;
     private final Runnable m_climberViz;
     private final SwerveModuleCollection m_modules;
-    private final SimulatedTagDetector m_simulatedTagDetector;
-    private final Runnable m_targetSimulator;
     private final LEDIndicator m_leds;
+    private final GroundTruth m_groundTruth;
 
     final CalgamesMech m_mech;
     final Manipulator m_manipulator;
@@ -75,10 +62,38 @@ public class Machinery2025 {
     final Beeper m_beeper;
 
     public Machinery2025(TotalCurrentLog currentLog) {
+        LoggerFactory driveLog = logger.name("Drive");
 
-        final LoggerFactory driveLog = logger.name("Drive");
-
+        ////////////////////////////////////////////////////////////
+        //
+        // DRIVETRAIN
+        //
         m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
+        m_modules = SwerveModuleCollection.get(
+                driveLog,
+                currentLog,
+                new CurrentLimit(DRIVE_STATOR_LIMIT, DRIVE_SUPPLY_LIMIT),
+                new CurrentLimit(30, 20));
+        Gyro gyro = GyroFactory.get(
+                driveLog,
+                m_swerveKinodynamics,
+                m_modules);
+        AprilTagFieldLayoutWithCorrectOrientation layout = AprilTagFieldLayoutWithCorrectOrientation.getLayout();
+        m_drive = SwerveDriveFactory.get(
+                driveLog,
+                fieldLogger,
+                m_swerveKinodynamics,
+                layout,
+                gyro,
+                m_modules);
+        m_robotViz = new RobotPoseVisualization(
+                fieldLogger, () -> m_drive.getState().pose(), "robot");
+
+        ////////////////////////////////////////////////////////////
+        //
+        // TARGETING
+        //
+        m_targets = new Targets(driveLog, fieldLogger, 0.2, (t) -> m_drive.getState(t));
 
         ////////////////////////////////////////////////////////////
         //
@@ -99,82 +114,20 @@ public class Machinery2025 {
 
         ////////////////////////////////////////////////////////////
         //
-        // POSE ESTIMATION
-        //
-        m_modules = SwerveModuleCollection.get(
-                driveLog,
-                currentLog,
-                new CurrentLimit(DRIVE_STATOR_LIMIT, DRIVE_SUPPLY_LIMIT),
-                new CurrentLimit(30, 20));
-        final Gyro gyro = GyroFactory.get(
-                driveLog,
-                m_swerveKinodynamics,
-                m_modules);
-        final SwerveHistory history = new SwerveHistory(
-                driveLog,
-                m_swerveKinodynamics,
-                0.2,
-                gyro.getYawNWU(),
-                VariableR1.fromStdDev(0, 1),
-                m_modules.positions(),
-                Pose2d.kZero,
-                IsotropicNoiseSE2.high(),
-                Takt.get());
-        final OdometryUpdater odometryUpdater = new OdometryUpdater(
-                driveLog, m_swerveKinodynamics, gyro, history, m_modules::positions,
-                UnaryOperator.identity(), false);
-        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
-
-        ////////////////////////////////////////////////////////////
-        //
-        // CAMERA READERS
-        //
-        final AprilTagFieldLayoutWithCorrectOrientation layout = getLayout();
-
-        m_targets = new Targets(driveLog, fieldLogger, 0.2, history);
-
-        ////////////////////////////////////////////////////////////
-        //
-        // SIMULATED CAMERAS
-        //
-        m_simulatedTagDetector = SimulatedTagDetector.get(layout, history);
-        m_targetSimulator = SimulatedTargetWriter.get(driveLog, history);
-
-        ////////////////////////////////////////////////////////////
-        //
-        // DRIVETRAIN
-        //
-        m_drive = SwerveDriveFactory.get(
-                driveLog,
-                fieldLogger,
-                m_swerveKinodynamics,
-                layout,
-                odometryUpdater,
-                history,
-                m_modules);
-        m_drive.resetPose(
-                new Pose2d(m_drive.getPose().getTranslation(), new Rotation2d(Math.PI)),
-                IsotropicNoiseSE2.high());
-        m_robotViz = new RobotPoseVisualization(
-                fieldLogger, () -> m_drive.getState().pose(), "robot");
-
-        ////////////////////////////////////////////////////////////
-        //
         // LED INDICATOR
         //
-        m_leds = new LEDIndicator(
-                m_manipulator,
-                m_climberIntake);
+        m_leds = new LEDIndicator(m_manipulator, m_climberIntake);
         m_beeper = new Beeper(m_mech, m_manipulator, m_drive);
+
+        ////////////////////////////////////////////////////////////
+        ///
+        /// GROUND TRUTH
+        ///
+        m_groundTruth = new GroundTruth(fieldLogger, logger, m_swerveKinodynamics, m_modules, layout);
     }
 
     public void periodic() {
-        // publish the simulated tag sightings.
-        m_simulatedTagDetector.run();
-        // publish simulated target sightings
-        m_targetSimulator.run();
-        // show the closest target on field2d
-        m_targets.periodic();
+        m_groundTruth.periodic();
         m_leds.periodic();
         m_robotViz.run();
         m_combinedViz.run();
@@ -187,12 +140,4 @@ public class Machinery2025 {
         m_leds.close();
     }
 
-    /** Trap the IO exception. */
-    private static AprilTagFieldLayoutWithCorrectOrientation getLayout() {
-        try {
-            return new AprilTagFieldLayoutWithCorrectOrientation();
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read Apriltag layout file", e);
-        }
-    }
 }

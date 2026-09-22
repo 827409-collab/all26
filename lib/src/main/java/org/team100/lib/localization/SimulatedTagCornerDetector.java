@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.DoubleFunction;
 import java.util.function.DoubleSupplier;
 
 import org.team100.lib.camera.Camera;
@@ -16,7 +15,6 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Metrics;
-import org.team100.lib.state.StateSE2;
 import org.team100.lib.uncertainty.IsotropicNoiseSE2;
 import org.team100.lib.uncertainty.VisionNoise;
 
@@ -79,7 +77,7 @@ public class SimulatedTagCornerDetector {
 
     private final List<Camera> m_cameras;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
-    private final DoubleFunction<StateSE2> m_history;
+    private final StateSampler m_history;
 
     private final Map<Camera, StructArrayPublisher<BlipWithCorners>> m_publishers;
     /** client instance, not the default */
@@ -96,7 +94,7 @@ public class SimulatedTagCornerDetector {
     public SimulatedTagCornerDetector(
             List<Camera> cameras,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            DoubleFunction<StateSE2> history) {
+            StateSampler history) {
         m_cameras = cameras;
         m_layout = layout;
         m_history = history;
@@ -205,7 +203,7 @@ public class SimulatedTagCornerDetector {
             }
 
             publisher.set(
-                    blips.toArray(new BlipWithCorners[0]), time);
+                    blips.toArray(new BlipWithCorners[0]));
             if (PUBLISH_DEBUG) {
                 System.out.printf("%s\n", blips);
             }

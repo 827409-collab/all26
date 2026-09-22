@@ -85,7 +85,7 @@ public class SimulatedDrivingTest implements Timeless {
                 logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
 
         FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer, odometryUpdater::update, history);
+                localizer, odometryUpdater, history);
         limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
 
         drive = new SwerveDriveSubsystem(

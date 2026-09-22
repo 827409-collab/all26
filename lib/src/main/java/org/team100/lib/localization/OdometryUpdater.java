@@ -110,6 +110,7 @@ public class OdometryUpdater {
                 positions,
                 odometryNoise,
                 false);
+        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
         return odometryUpdater;
     }
 

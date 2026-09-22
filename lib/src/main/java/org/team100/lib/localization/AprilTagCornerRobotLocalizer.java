@@ -3,13 +3,12 @@ package org.team100.lib.localization;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.DoubleFunction;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 
-import org.team100.lib.coherence.Takt;
 import org.team100.lib.camera.Camera;
 import org.team100.lib.camera.Offset;
+import org.team100.lib.coherence.Takt;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
@@ -22,7 +21,6 @@ import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.logging.LoggerFactory.Transform3dLogger;
 import org.team100.lib.network.CameraReader;
-import org.team100.lib.state.StateSE2;
 import org.team100.lib.uncertainty.NoisyPose2d;
 import org.team100.lib.uncertainty.VisionNoise;
 import org.team100.lib.util.TrailingHistory;
@@ -53,7 +51,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
     private static final double VISION_CHANGE_TOLERANCE_M = 0.25;
 
     private final PoseFromCorners m_estimator;
-    private final DoubleFunction<StateSE2> m_history;
+    private final StateSampler m_history;
     private final VisionUpdater m_visionUpdater;
     private final Supplier<Optional<Alliance>> m_alliance;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
@@ -129,7 +127,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
             LoggerFactory parent,
             LoggerFactory fieldLogger,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            DoubleFunction<StateSE2> history,
+            StateSampler history,
             VisionUpdater visionUpdater,
             Supplier<Optional<Alliance>> alliance) {
         super(parent, "vision", "blips_with_corners", StructBuffer.create(BlipWithCorners.struct));
@@ -181,9 +179,7 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
      * Compute the robot pose and put it in the pose estimator.
      */
     @Override
-    protected void perValue(
-            Camera camera,
-            BlipWithCorners[] blips) {
+    protected void perValue(Camera camera, BlipWithCorners[] blips) {
 
         Transform3d cameraOffset = Offset.get(camera).offset();
 
@@ -239,7 +235,6 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
             m_allTags.add(blipTimeSec, estimatedTagInField);
             logTagError(tagInField, estimatedTagInField);
 
-
             //////////////////////////////////////////////////////////////////
             ///
             /// Should we use this update?
@@ -264,7 +259,8 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
                 continue;
             }
             ///
-            if (Metrics.translationalDistance(m_prevPose, robotPose2d) > VISION_CHANGE_TOLERANCE_M) {
+            double distanceFromPrev = Metrics.translationalDistance(m_prevPose, robotPose2d);
+            if (distanceFromPrev > VISION_CHANGE_TOLERANCE_M) {
                 // No, the new estimate is too far from the previous one.
                 m_prevPose = robotPose2d;
                 if (DEBUG)
@@ -287,9 +283,11 @@ public class AprilTagCornerRobotLocalizer extends CameraReader<BlipWithCorners> 
             m_visionUpdater.put(blipTimeSec, noisyMeasurement);
             m_prevPose = robotPose2d;
         }
-
     }
 
+    /**
+     * Show the tags on the Field2d widget.
+     */
     @Override
     protected void finishUpdate() {
         m_pub_tags.set(m_allTags.getAll().toArray(new Pose3d[0]));

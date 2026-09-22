@@ -3,13 +3,12 @@ package org.team100.lib.localization;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.DoubleFunction;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 
-import org.team100.lib.coherence.Takt;
 import org.team100.lib.camera.Camera;
 import org.team100.lib.camera.Offset;
+import org.team100.lib.coherence.Takt;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.Metrics;
@@ -21,7 +20,6 @@ import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.logging.LoggerFactory.Transform3dLogger;
 import org.team100.lib.network.CameraReader;
-import org.team100.lib.state.StateSE2;
 import org.team100.lib.uncertainty.NoisyPose2d;
 import org.team100.lib.uncertainty.VisionNoise;
 import org.team100.lib.util.TrailingHistory;
@@ -51,7 +49,7 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
     /** Discard results further than this from the previous one. */
     private static final double VISION_CHANGE_TOLERANCE_M = 0.25;
 
-    private final DoubleFunction<StateSE2> m_history;
+    private final StateSampler m_history;
     private final VisionUpdater m_visionUpdater;
     private final Supplier<Optional<Alliance>> m_alliance;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
@@ -127,7 +125,7 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
             LoggerFactory parent,
             LoggerFactory fieldLogger,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            DoubleFunction<StateSE2> history,
+            StateSampler history,
             VisionUpdater visionUpdater,
             Supplier<Optional<Alliance>> alliance) {
         super(parent, "vision", "blips", StructBuffer.create(Blip.struct));
