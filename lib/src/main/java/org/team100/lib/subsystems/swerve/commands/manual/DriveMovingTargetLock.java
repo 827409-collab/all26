@@ -77,7 +77,7 @@ public class DriveMovingTargetLock extends Command {
     @Override
     public void initialize() {
         m_drive.setHeedRadiusM(HEED_RADIUS_M);
-        m_limiter.updateSetpoint(m_drive.getVelocity());
+        m_limiter.updateSetpoint(m_drive.getState().velocity());
         m_aim.reset();
     }
 

@@ -90,7 +90,6 @@ public class SimulatedDrivingTest implements Timeless {
 
         drive = new SwerveDriveSubsystem(
                 logger,
-                odometryUpdater,
                 estimate,
                 swerveLocal);
     }
@@ -154,7 +153,7 @@ public class SimulatedDrivingTest implements Timeless {
             stepTime();
             drive.set(input);
             if (DEBUG)
-                System.out.printf("%.2f %s\n", Takt.get() - start, drive.getPose());
+                System.out.printf("%.2f %s\n", Takt.get() - start, drive.getState().pose());
         }
     }
 
@@ -168,7 +167,7 @@ public class SimulatedDrivingTest implements Timeless {
             stepTime();
             drive.set(input);
             if (DEBUG)
-                System.out.printf("%.2f %s\n", Takt.get() - start, drive.getPose());
+                System.out.printf("%.2f %s\n", Takt.get() - start, drive.getState().pose());
         }
     }
 
@@ -217,31 +216,31 @@ public class SimulatedDrivingTest implements Timeless {
         VelocityControlSE2 input = new VelocityControlSE2(0, 0, 4);
         if (DEBUG)
             System.out.printf("pose %s, gyro %s, rate %f\n",
-                    drive.getPose(),
+                    drive.getState().pose(),
                     gyro.getYawNWU(),
                     gyro.getYawRateNWU());
         drive.set(input);
         if (DEBUG)
             System.out.printf("pose %s, gyro %s, rate %f\n",
-                    drive.getPose(),
+                    drive.getState().pose(),
                     gyro.getYawNWU(),
                     gyro.getYawRateNWU());
         stepTime();
         if (DEBUG)
             System.out.printf("pose %s, gyro %s, rate %f\n",
-                    drive.getPose(),
+                    drive.getState().pose(),
                     gyro.getYawNWU(),
                     gyro.getYawRateNWU());
         drive.set(input);
         if (DEBUG)
             System.out.printf("pose %s, gyro %s, rate %f\n",
-                    drive.getPose(),
+                    drive.getState().pose(),
                     gyro.getYawNWU(),
                     gyro.getYawRateNWU());
         stepTime();
         if (DEBUG)
             System.out.printf("pose %s, gyro %s, rate %f\n",
-                    drive.getPose(),
+                    drive.getState().pose(),
                     gyro.getYawNWU(),
                     gyro.getYawRateNWU());
 

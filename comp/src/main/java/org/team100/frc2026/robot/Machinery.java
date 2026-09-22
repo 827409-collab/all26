@@ -155,7 +155,7 @@ public class Machinery {
     /** Erase the pose history, use high variance for pose estimate. */
     public Command disorient() {
         return Commands.runOnce(() -> {
-            Pose2d p = m_drive.getPose();
+            Pose2d p = m_drive.getState().pose();
             System.out.printf("*** DISORIENT: %s\n", p);
             resetPose(p);
         }, m_drive);
@@ -176,7 +176,7 @@ public class Machinery {
      */
     public Command zeroRotation() {
         return Commands.runOnce(() -> {
-            Translation2d t = m_drive.getPose().getTranslation();
+            Translation2d t = m_drive.getState().pose().getTranslation();
             Pose2d p = new Pose2d(t, Rotation2d.kZero);
             // no influence over cartesian variance
             // a strong claim about rotation variance

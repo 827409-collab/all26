@@ -164,6 +164,8 @@ public class OdometryUpdater {
      * The gyro angle is whatever the gyro says, not zero.
      * 
      * New! Adds a very uncertain gyro bias estimate.
+     * 
+     * TODO: remove this, since it just resets history.
      */
     public void reset(
             Pose2d pose,

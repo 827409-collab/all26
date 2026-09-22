@@ -22,6 +22,7 @@ import org.team100.lib.logging.TotalCurrentLog;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.sensor.gyro.Gyro;
 import org.team100.lib.sensor.gyro.SimulatedGyro;
+import org.team100.lib.state.StateSE2;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.subsystems.swerve.module.SwerveModuleCollection;
@@ -80,7 +81,6 @@ class SwerveDriveSubsystemTest implements Timeless {
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,
-                odometryUpdater,
                 estimate,
                 swerveLocal);
 
@@ -165,7 +165,6 @@ class SwerveDriveSubsystemTest implements Timeless {
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,
-                odometryUpdater,
                 estimate,
                 swerveLocal);
 
@@ -211,11 +210,12 @@ class SwerveDriveSubsystemTest implements Timeless {
     }
 
     private void verify(SwerveDriveSubsystem drive, double x, double v, double a) {
-        assertEquals(x, drive.getPose().getX(), DELTA);
-        assertEquals(v, drive.getVelocity().x(), DELTA);
+        StateSE2 state = drive.getState();
+        assertEquals(x, state.pose().getX(), DELTA);
+        assertEquals(v, state.velocity().x(), DELTA);
         // assertEquals(a, drive.getState().acceleration().x(), DELTA);
-        assertEquals(x, drive.getState().x().x(), DELTA);
-        assertEquals(v, drive.getState().x().v(), DELTA);
+        assertEquals(x, state.x().x(), DELTA);
+        assertEquals(v, state.x().v(), DELTA);
         // assertEquals(a, drive.getState().x().a(), DELTA);
     }
 }

@@ -201,7 +201,6 @@ public class DriveWithTrajectoryTest implements Timeless {
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,
-                odometryUpdater,
                 estimate,
                 swerveLocal);
 

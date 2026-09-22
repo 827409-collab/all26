@@ -102,7 +102,6 @@ class DriveWithTrajectoryListFunctionTest implements Timeless {
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,
-                odometryUpdater,
                 estimate,
                 swerveLocal);
 
@@ -122,7 +121,7 @@ class DriveWithTrajectoryListFunctionTest implements Timeless {
                 x -> List.of(ex.line(x)),
                 viz);
         c.initialize();
-        assertEquals(0, drive.getPose().getX(), DELTA);
+        assertEquals(0, drive.getState().pose().getX(), DELTA);
         c.execute();
         assertFalse(c.isDone());
         // the trajectory takes a little over 3s
@@ -132,6 +131,6 @@ class DriveWithTrajectoryListFunctionTest implements Timeless {
             drive.periodic(); // for updateOdometry
         }
         assertTrue(c.isDone());
-        assertEquals(1.0, drive.getPose().getX(), 0.01);
+        assertEquals(1.0, drive.getState().pose().getX(), 0.01);
     }
 }

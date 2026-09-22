@@ -62,7 +62,7 @@ public class DriveFieldRelative extends Command {
     public void initialize() {
         m_drive.setHeedRadiusM(HEED_RADIUS_M);
         // make sure the limiter knows what we're doing
-        m_limiter.updateSetpoint(m_drive.getVelocity());
+        m_limiter.updateSetpoint(m_drive.getState().velocity());
         m_v = VelocitySE2.ZERO;
     }
 

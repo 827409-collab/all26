@@ -65,7 +65,6 @@ public class SwerveDriveFactory {
                 modules);
         return new SwerveDriveSubsystem(
                 driveLog,
-                odometryUpdater,
                 estimate,
                 swerveLocal);
     }

@@ -52,7 +52,7 @@ public class LolipopAuto {
         DriveWithTrajectoryFunction toReefTrajectory = new DriveWithTrajectoryFunction(
                 m_log, m_machinery.m_drive, m_autoController, m_machinery.m_trajectoryViz,
                 (p) -> m_planner.restToRest(List.of(
-                        WaypointSE2.irrotational(m_machinery.m_drive.getPose(), Math.PI, 1.2),
+                        WaypointSE2.irrotational(m_machinery.m_drive.getState().pose(), Math.PI, 1.2),
                         WaypointSE2.irrotational(
                                 new Pose2d(3, 5, new Rotation2d(0)), -2, 1.2))));
 
