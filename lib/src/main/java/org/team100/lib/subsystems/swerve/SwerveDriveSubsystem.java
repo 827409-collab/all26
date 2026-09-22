@@ -102,10 +102,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
         m_swerveLocal.stop();
     }
 
-    /**
-     * Empty the pose history, reset the servos, add the given pose, and flush the
-     * cache.
-     */
+    /** Empty the pose history, add the given pose, and flush the cache. */
     public void resetPose(Pose2d robotPose, IsotropicNoiseSE2 noise) {
         m_estimate.reset(robotPose, noise);
     }
@@ -138,7 +135,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
 
     /** Stop and then end -- this is for compositions where doing nothing is OK */
     public Command stopOnce() {
-        return runOnce(this::stop).withName("Drive Stop Once");
+        return runOnce(this::stop)
+                .withName("Drive Stop");
     }
 
     /** Drive to the robot's front, endlessly. */
@@ -152,19 +150,20 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
     public Command rightwardSlow() {
         return run(() -> setChassisSpeeds(
                 new ChassisSpeeds(0, -1.0, 0), ChassisAcceleration.ZERO))
-                .withName("Drive Right Slow");
+                .withName("Drive Right");
     }
 
-    /** Spin to the left, endlessly. */
+    /** Spin counterclockwise, endlessly. */
     public Command spinLeft() {
         return run(() -> setChassisSpeeds(
                 new ChassisSpeeds(0, 0, 1.0), ChassisAcceleration.ZERO))
-                .withName("Drive Spin Left");
+                .withName("Drive Spin");
     }
 
-    /** Set the wheels to an "X" pattern. */
+    /** Hold the wheels in an "X" pattern, endlessly. */
     public Command defend() {
-        return run(m_swerveLocal::defense);
+        return run(m_swerveLocal::defense)
+                .withName("Drive Defend");
     }
 
     @Override

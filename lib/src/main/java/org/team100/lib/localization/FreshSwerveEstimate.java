@@ -2,10 +2,17 @@ package org.team100.lib.localization;
 
 import org.team100.lib.coherence.Cache;
 import org.team100.lib.coherence.SideEffect;
+import org.team100.lib.coherence.Takt;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.sensor.gyro.Gyro;
 import org.team100.lib.state.StateSE2;
+import org.team100.lib.subsystems.swerve.SwerveLocal;
+import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.uncertainty.IsotropicNoiseSE2;
+import org.team100.lib.uncertainty.VariableR1;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Updates the vision and odometry before sampling the history.
@@ -26,11 +33,6 @@ public class FreshSwerveEstimate {
     /** Side effect mutates history. */
     private final SideEffect m_odometryCache;
 
-    /**
-     * @param visionUpdate   AprilTagRobotLocalizer::update
-     * @param odometryUpdate OdometryUpdater::update
-     * @param history        SwerveHistory
-     */
     public FreshSwerveEstimate(
             AprilTagCornerRobotLocalizer localizer,
             OdometryUpdater odometryUpdate,
@@ -40,6 +42,85 @@ public class FreshSwerveEstimate {
         m_history = history;
         m_localizerCache = Cache.ofSideEffect(localizer::update);
         m_odometryCache = Cache.ofSideEffect(odometryUpdate::update);
+    }
+
+    public static FreshSwerveEstimate get(
+            LoggerFactory driveLog,
+            LoggerFactory fieldLogger,
+            SwerveKinodynamics swerveKinodynamics,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
+            Gyro gyro,
+            SwerveLocal swerveLocal) {
+        SwerveHistory history = new SwerveHistory(
+                driveLog,
+                swerveKinodynamics,
+                0.2,
+                gyro.getYawNWU(),
+                VariableR1.fromStdDev(0, 1),
+                swerveLocal.positions(),
+                Pose2d.kZero,
+                IsotropicNoiseSE2.high(),
+                Takt.get());
+        OdometryUpdater odometryUpdater = OdometryUpdater.normal(
+                driveLog,
+                swerveKinodynamics,
+                gyro,
+                history,
+                swerveLocal::positions);
+        NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
+                driveLog, history, odometryUpdater);
+        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
+                driveLog,
+                fieldLogger,
+                layout,
+                history,
+                visionUpdater,
+                DriverStation::getAlliance);
+        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+                localizer,
+                odometryUpdater,
+                history);
+        return estimate;
+    }
+
+    /** Noiseless for testing */
+    public static FreshSwerveEstimate test(
+            LoggerFactory driveLog,
+            LoggerFactory fieldLogger,
+            SwerveKinodynamics swerveKinodynamics,
+            AprilTagFieldLayoutWithCorrectOrientation layout,
+            Gyro gyro,
+            SwerveLocal swerveLocal) {
+        SwerveHistory history = new SwerveHistory(
+                driveLog,
+                swerveKinodynamics,
+                0.2,
+                gyro.getYawNWU(),
+                VariableR1.fromStdDev(0, 1),
+                swerveLocal.positions(),
+                Pose2d.kZero,
+                IsotropicNoiseSE2.high(),
+                Takt.get());
+        OdometryUpdater odometryUpdater = OdometryUpdater.noiseless(
+                driveLog,
+                swerveKinodynamics,
+                gyro,
+                history,
+                swerveLocal::positions);
+        NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
+                driveLog, history, odometryUpdater);
+        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
+                driveLog,
+                fieldLogger,
+                layout,
+                history,
+                visionUpdater,
+                DriverStation::getAlliance);
+        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+                localizer,
+                odometryUpdater,
+                history);
+        return estimate;
     }
 
     /**

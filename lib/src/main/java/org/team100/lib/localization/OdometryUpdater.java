@@ -114,6 +114,26 @@ public class OdometryUpdater {
         return odometryUpdater;
     }
 
+    /** For testing */
+    public static OdometryUpdater noiseless(
+            LoggerFactory parent,
+            SwerveKinodynamics kinodynamics,
+            Gyro gyro,
+            SwerveHistory history,
+            Supplier<SwerveModulePositions> positions) {
+        UnaryOperator<Twist2d> odometryNoise = UnaryOperator.identity();
+        OdometryUpdater odometryUpdater = new OdometryUpdater(
+                parent,
+                kinodynamics,
+                gyro,
+                history,
+                positions,
+                odometryNoise,
+                false);
+        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
+        return odometryUpdater;
+    }
+
     /**
      * Put a new state estimate based on gyro and wheel data, from the suppliers
      * passed to the constructor. There is no history replay here, though it won't
@@ -347,13 +367,13 @@ public class OdometryUpdater {
             modulePositionDelta = SwerveModuleDeltas.ZERO;
         }
         if (DEBUG) {
-            System.out.printf("modulePositionDelta %s\n", modulePositionDelta);
+            System.out.printf("OdometryUpdater modulePositionDelta %s\n", modulePositionDelta);
         }
         Twist2d twist = m_kinodynamics.getKinematics().forward(modulePositionDelta);
         // Add noise, if in simulation (otherwise, this is a no-op).
         twist = m_noise.apply(twist);
         if (DEBUG) {
-            System.out.printf("twist %s\n", StrUtil.twistStr(twist));
+            System.out.printf("OdometryUpdater twist %s\n", StrUtil.twistStr(twist));
         }
         return twist;
     }

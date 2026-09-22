@@ -10,13 +10,14 @@ import org.team100.frc2026.subsystems.Shooter;
 import org.team100.frc2026.targeting.Targeter;
 import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.GroundTruth;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TotalCurrentLog;
 import org.team100.lib.sensor.gyro.Gyro;
 import org.team100.lib.sensor.gyro.GyroFactory;
-import org.team100.lib.subsystems.swerve.SwerveDriveFactory;
 import org.team100.lib.subsystems.swerve.SwerveDriveSubsystem;
+import org.team100.lib.subsystems.swerve.SwerveLocal;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.subsystems.swerve.module.SwerveModuleCollection;
@@ -74,13 +75,22 @@ public class Machinery {
                 m_swerveKinodynamics,
                 m_modules);
         AprilTagFieldLayoutWithCorrectOrientation layout = AprilTagFieldLayoutWithCorrectOrientation.getLayout();
-        m_drive = SwerveDriveFactory.get(
+        SwerveLocal swerveLocal = new SwerveLocal(
+                driveLog,
+                m_swerveKinodynamics,
+                m_modules);
+        FreshSwerveEstimate estimate = FreshSwerveEstimate.get(
                 driveLog,
                 fieldLogger,
                 m_swerveKinodynamics,
                 layout,
                 gyro,
-                m_modules);
+                swerveLocal);
+        m_drive = new SwerveDriveSubsystem(
+                driveLog,
+                estimate,
+                swerveLocal);
+
         m_robotViz = new RobotPoseVisualization(
                 fieldLogger, () -> m_drive.getState().pose(), "robot");
 

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.CurrentLimit;
@@ -13,12 +12,8 @@ import org.team100.lib.controller.se2.ControllerFactorySE2;
 import org.team100.lib.controller.se2.ControllerSE2;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
-import org.team100.lib.localization.AprilTagCornerRobotLocalizer;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.FreshSwerveEstimate;
-import org.team100.lib.localization.NudgingVisionUpdater;
-import org.team100.lib.localization.OdometryUpdater;
-import org.team100.lib.localization.SwerveHistory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -33,7 +28,6 @@ import org.team100.lib.subsystems.swerve.SwerveLocal;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.subsystems.swerve.module.SwerveModuleCollection;
-import org.team100.lib.subsystems.swerve.module.state.SwerveModulePositions;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.trajectory.se2.TrajectorySE2;
 import org.team100.lib.trajectory.se2.TrajectorySE2Factory;
@@ -41,13 +35,10 @@ import org.team100.lib.trajectory.se2.TrajectorySE2Planner;
 import org.team100.lib.trajectory.se2.constraint.TimingConstraint;
 import org.team100.lib.trajectory.se2.constraint.TimingConstraintFactory;
 import org.team100.lib.trajectory.se2.examples.TrajectoryExamples;
-import org.team100.lib.uncertainty.IsotropicNoiseSE2;
-import org.team100.lib.uncertainty.VariableR1;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 
 public class DriveWithTrajectoryTest implements Timeless {
 
@@ -173,31 +164,12 @@ public class DriveWithTrajectoryTest implements Timeless {
         ControllerSE2 controller = ControllerFactorySE2.test(logger);
 
         Gyro gyro = new SimulatedGyro(logger, swerveKinodynamics, collection, 0);
-        SwerveHistory history = new SwerveHistory(
-                logger,
-                swerveKinodynamics,
-                0.2,
-                Rotation2d.kZero,
-                VariableR1.fromVariance(0, 1),
-                SwerveModulePositions.kZero(),
-                Pose2d.kZero,
-                IsotropicNoiseSE2.high(),
-                0); // initial time is zero here for testing
-        OdometryUpdater odometryUpdater = new OdometryUpdater(
-                logger, swerveKinodynamics, gyro, history,
-                collection::positions, UnaryOperator.identity(), true);
-        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high(), 0);
-
-        NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
-                logger, history, odometryUpdater);
 
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
 
-        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
-                logger, fieldLogger, layout, history, visionUpdater, DriverStation::getAlliance);
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer, odometryUpdater, history);
         SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
+        FreshSwerveEstimate estimate = FreshSwerveEstimate.test(
+                logger, fieldLogger, swerveKinodynamics, layout, gyro, swerveLocal);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,

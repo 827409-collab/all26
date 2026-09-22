@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 class AprilTagRobotLocalizerTest implements Timeless {
+    private static final boolean DEBUG = false;
     private static final double DELTA = 0.01;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final LoggerFactory fieldLogger = new TestLoggerFactory(new TestPrimitiveLogger());
@@ -270,7 +271,8 @@ class AprilTagRobotLocalizerTest implements Timeless {
         VisionUpdater visionUpdater = new VisionUpdater() {
             @Override
             public void put(double t, NoisyPose2d p) {
-                System.out.println(p);
+                if (DEBUG)
+                    System.out.println(p);
                 // if the camera is 1m away at 30 deg down then the x dimension is sqrt(3)/2
                 assertEquals(8.272 - Math.sqrt(3) / 2, p.pose().getX(), DELTA);
                 assertEquals(1.914, p.pose().getY(), DELTA);

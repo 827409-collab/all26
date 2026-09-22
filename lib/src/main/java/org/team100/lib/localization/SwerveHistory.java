@@ -30,6 +30,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * Other SwerveModel consumers should use SwerveModelEstimate.
  */
 public class SwerveHistory implements StateSampler {
+    private static final boolean DEBUG = false;
+
     /**
      * The buffer only needs to be long enough to catch stale-but-still-helpful
      * vision updates.
@@ -103,7 +105,10 @@ public class SwerveHistory implements StateSampler {
             SwerveModulePositions positions,
             Rotation2d gyroYaw,
             VariableR1 gyroBias) {
-        // System.out.printf("history put noise %s\n", noise);
+        if (DEBUG)
+            System.out.printf("SwerveHistory.put() %f %s %s\n",
+                    timestamp, state, noise);
+
         m_poseBuffer.put(
                 timestamp,
                 new SwerveState(
@@ -115,6 +120,8 @@ public class SwerveHistory implements StateSampler {
     }
 
     void put(double timestamp, SwerveState state) {
+        if (DEBUG)
+            System.out.printf("SwerveHistory.put() %f %s\n", timestamp, state);
         m_poseBuffer.put(timestamp, state);
     }
 
