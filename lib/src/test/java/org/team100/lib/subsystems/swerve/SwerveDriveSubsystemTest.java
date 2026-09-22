@@ -3,6 +3,7 @@ package org.team100.lib.subsystems.swerve;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.CurrentLimit;
@@ -25,6 +26,7 @@ import org.team100.lib.testing.Timeless;
 import org.team100.lib.uncertainty.IsotropicNoiseSE2;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 class SwerveDriveSubsystemTest implements Timeless {
@@ -45,9 +47,10 @@ class SwerveDriveSubsystemTest implements Timeless {
         SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
 
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
+        UnaryOperator<Twist2d> odometryNoise = UnaryOperator.identity();
 
-        FreshSwerveEstimate estimate = FreshSwerveEstimate.test(
-                logger, fieldLogger, swerveKinodynamics, layout, gyro, swerveLocal);
+        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+                logger, fieldLogger, swerveKinodynamics, odometryNoise, layout, gyro, swerveLocal);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
                 logger,

@@ -134,7 +134,7 @@ public class SimulatedTagDetector {
         // fetch the pose from a little while ago
         double actualDelay = MEAN_DELAY + m_rand.nextGaussian() * STDEV_DELAY;
         double timestampS = Takt.get() - actualDelay;
-        Pose2d pose = m_history.apply(timestampS).pose();
+        Pose2d pose = m_history.get(timestampS).pose();
 
         // Use exactly the history lookup timestamp.
         long time = (long) (timestampS * 1000000.0);

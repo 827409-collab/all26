@@ -94,7 +94,7 @@ public class SimulatedTargetWriter {
         // select pose from a little while ago
         double timestampS = Takt.get() - DELAY;
         m_log_poseTimestamp.log(() -> timestampS);
-        Pose2d pose = m_history.apply(timestampS).pose();
+        Pose2d pose = m_history.get(timestampS).pose();
 
         // Use exactly the timestamp used in this history lookup.
         long time = (long) (timestampS * 1000000.0);

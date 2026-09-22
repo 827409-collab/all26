@@ -120,7 +120,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
 
     /** Sample the past state at the specified time. */
     public StateSE2 getState(double timeSec) {
-        return m_estimate.apply(timeSec);
+        return m_estimate.get(timeSec);
     }
 
     /** Tags outside this radius are ignored. */

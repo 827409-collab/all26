@@ -353,7 +353,7 @@ public class AprilTagRobotLocalizer extends CameraReader<Blip> {
         // Because the camera delay is much more than the odometry delay, we're always
         // trying to write history from several cycles ago (followed by replay). It's ok
         // for new odometry to be the last thing.
-        Pose2d historicalPose = m_history.apply(timestamp).pose();
+        Pose2d historicalPose = m_history.get(timestamp).pose();
         if (DEBUG) {
             System.out.printf("historical pose rotation %f\n",
                     historicalPose.getRotation().getRadians());

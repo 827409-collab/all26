@@ -1,5 +1,7 @@
 package org.team100.frc2025.robot;
 
+import java.util.function.UnaryOperator;
+
 import org.team100.frc2025.CalgamesArm.CalgamesMech;
 import org.team100.frc2025.CalgamesArm.CalgamesViz;
 import org.team100.frc2025.Climber.Climber2025;
@@ -9,6 +11,7 @@ import org.team100.frc2025.grip.Manipulator;
 import org.team100.frc2025.indicator.LEDIndicator;
 import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.indicator.Beeper;
+import org.team100.lib.localization.AddOdometryNoise;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.GroundTruth;
@@ -26,6 +29,9 @@ import org.team100.lib.targeting.Targets;
 import org.team100.lib.util.CanId;
 import org.team100.lib.visualization.RobotPoseVisualization;
 import org.team100.lib.visualization.TrajectoryVisualization;
+
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * This should contain all the hardware of the robot: all the subsystems etc
@@ -84,10 +90,12 @@ public class Machinery2025 {
                 driveLog,
                 m_swerveKinodynamics,
                 m_modules);
-        FreshSwerveEstimate estimate = FreshSwerveEstimate.get(
+        UnaryOperator<Twist2d> odometryNoise = RobotBase.isReal() ? UnaryOperator.identity() : new AddOdometryNoise();
+        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
                 driveLog,
                 fieldLogger,
                 m_swerveKinodynamics,
+                odometryNoise,
                 layout,
                 gyro,
                 swerveLocal);

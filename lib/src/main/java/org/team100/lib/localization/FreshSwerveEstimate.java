@@ -1,5 +1,7 @@
 package org.team100.lib.localization;
 
+import java.util.function.UnaryOperator;
+
 import org.team100.lib.coherence.Cache;
 import org.team100.lib.coherence.SideEffect;
 import org.team100.lib.coherence.Takt;
@@ -12,6 +14,7 @@ import org.team100.lib.uncertainty.IsotropicNoiseSE2;
 import org.team100.lib.uncertainty.VariableR1;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -24,34 +27,24 @@ import edu.wpi.first.wpilibj.DriverStation;
 public class FreshSwerveEstimate {
     private static final boolean DEBUG = false;
 
-    /** SwerveHistory delegate. */
-    private final StateSampler m_history;
+    private final SwerveHistory m_history;
     private final AprilTagCornerRobotLocalizer m_localizer;
+    private final AprilTagVisualizer m_viz;
     private final OdometryUpdater m_odometryUpdate;
     /** Side effect mutates history. */
     private final SideEffect m_localizerCache;
+    private final SideEffect m_vizCache;
     /** Side effect mutates history. */
     private final SideEffect m_odometryCache;
 
-    public FreshSwerveEstimate(
-            AprilTagCornerRobotLocalizer localizer,
-            OdometryUpdater odometryUpdate,
-            StateSampler history) {
-        m_localizer = localizer;
-        m_odometryUpdate = odometryUpdate;
-        m_history = history;
-        m_localizerCache = Cache.ofSideEffect(localizer::update);
-        m_odometryCache = Cache.ofSideEffect(odometryUpdate::update);
-    }
-
-    public static FreshSwerveEstimate get(
-            LoggerFactory driveLog,
+    public FreshSwerveEstimate(LoggerFactory driveLog,
             LoggerFactory fieldLogger,
             SwerveKinodynamics swerveKinodynamics,
+            UnaryOperator<Twist2d> odometryNoise,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             Gyro gyro,
             SwerveLocal swerveLocal) {
-        SwerveHistory history = new SwerveHistory(
+        m_history = new SwerveHistory(
                 driveLog,
                 swerveKinodynamics,
                 0.2,
@@ -61,66 +54,26 @@ public class FreshSwerveEstimate {
                 Pose2d.kZero,
                 IsotropicNoiseSE2.high(),
                 Takt.get());
-        OdometryUpdater odometryUpdater = OdometryUpdater.normal(
+        m_odometryUpdate = new OdometryUpdater(
                 driveLog,
                 swerveKinodynamics,
                 gyro,
-                history,
-                swerveLocal::positions);
+                m_history,
+                swerveLocal::positions,
+                odometryNoise,
+                false);
         NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
-                driveLog, history, odometryUpdater);
-        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
+                driveLog, m_history, m_odometryUpdate);
+        m_localizer = new AprilTagCornerRobotLocalizer(
                 driveLog,
-                fieldLogger,
                 layout,
-                history,
                 visionUpdater,
                 DriverStation::getAlliance);
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer,
-                odometryUpdater,
-                history);
-        return estimate;
-    }
-
-    /** Noiseless for testing */
-    public static FreshSwerveEstimate test(
-            LoggerFactory driveLog,
-            LoggerFactory fieldLogger,
-            SwerveKinodynamics swerveKinodynamics,
-            AprilTagFieldLayoutWithCorrectOrientation layout,
-            Gyro gyro,
-            SwerveLocal swerveLocal) {
-        SwerveHistory history = new SwerveHistory(
-                driveLog,
-                swerveKinodynamics,
-                0.2,
-                gyro.getYawNWU(),
-                VariableR1.fromStdDev(0, 1),
-                swerveLocal.positions(),
-                Pose2d.kZero,
-                IsotropicNoiseSE2.high(),
-                Takt.get());
-        OdometryUpdater odometryUpdater = OdometryUpdater.noiseless(
-                driveLog,
-                swerveKinodynamics,
-                gyro,
-                history,
-                swerveLocal::positions);
-        NudgingVisionUpdater visionUpdater = new NudgingVisionUpdater(
-                driveLog, history, odometryUpdater);
-        AprilTagCornerRobotLocalizer localizer = new AprilTagCornerRobotLocalizer(
-                driveLog,
-                fieldLogger,
-                layout,
-                history,
-                visionUpdater,
-                DriverStation::getAlliance);
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
-                localizer,
-                odometryUpdater,
-                history);
-        return estimate;
+        m_viz = new AprilTagVisualizer(
+                driveLog, fieldLogger, m_history, layout, DriverStation::getAlliance);
+        m_localizerCache = Cache.ofSideEffect(m_localizer::update);
+        m_vizCache = Cache.ofSideEffect(m_viz::update);
+        m_odometryCache = Cache.ofSideEffect(m_odometryUpdate::update);
     }
 
     /**
@@ -131,12 +84,13 @@ public class FreshSwerveEstimate {
      * The estimator itself should have enough controls to make the estimate
      * arbitrarily smooth.
      */
-    public StateSE2 apply(double timestampS) {
+    public StateSE2 get(double timestampS) {
         // run our dependencies if they haven't already
         m_localizerCache.run();
+        m_vizCache.run();
         m_odometryCache.run();
         // query the history
-        StateSE2 state = m_history.apply(timestampS);
+        StateSE2 state = m_history.get(timestampS);
         if (DEBUG) {
             System.out.printf("FreshSwerveEstimate.update() estimated pose: %s\n", state);
         }

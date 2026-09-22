@@ -22,7 +22,7 @@ public class GroundTruthCache {
 
     public StateSE2 apply(double timestampS) {
         m_odometry.run();
-        return m_history.apply(timestampS);
+        return m_history.get(timestampS);
     }
 
 }

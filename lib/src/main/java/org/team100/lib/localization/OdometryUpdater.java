@@ -28,7 +28,6 @@ import org.team100.lib.util.StrUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * Updates SwerveModelHistory with new odometry by selecting the most-recent
@@ -89,49 +88,7 @@ public class OdometryUpdater {
         m_log_prevNoise = log.isotropicNoiseSE2Logger(Level.TRACE, "previous noise");
         m_log_updateNoise = log.isotropicNoiseSE2Logger(Level.TRACE, "update noise");
         m_log_newNoise = log.isotropicNoiseSE2Logger(Level.TRACE, "new noise");
-    }
-
-    /**
-     * Odometry updater for use in estimation. Can be turned off via experiment.
-     */
-    public static OdometryUpdater normal(
-            LoggerFactory parent,
-            SwerveKinodynamics kinodynamics,
-            Gyro gyro,
-            SwerveHistory history,
-            Supplier<SwerveModulePositions> positions) {
-        // In simulation, add extra noise. In a real robot, don't.
-        UnaryOperator<Twist2d> odometryNoise = RobotBase.isReal() ? UnaryOperator.identity() : new AddOdometryNoise();
-        OdometryUpdater odometryUpdater = new OdometryUpdater(
-                parent,
-                kinodynamics,
-                gyro,
-                history,
-                positions,
-                odometryNoise,
-                false);
-        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
-        return odometryUpdater;
-    }
-
-    /** For testing */
-    public static OdometryUpdater noiseless(
-            LoggerFactory parent,
-            SwerveKinodynamics kinodynamics,
-            Gyro gyro,
-            SwerveHistory history,
-            Supplier<SwerveModulePositions> positions) {
-        UnaryOperator<Twist2d> odometryNoise = UnaryOperator.identity();
-        OdometryUpdater odometryUpdater = new OdometryUpdater(
-                parent,
-                kinodynamics,
-                gyro,
-                history,
-                positions,
-                odometryNoise,
-                false);
-        odometryUpdater.reset(Pose2d.kZero, IsotropicNoiseSE2.high());
-        return odometryUpdater;
+        reset(Pose2d.kZero, IsotropicNoiseSE2.high());
     }
 
     /**

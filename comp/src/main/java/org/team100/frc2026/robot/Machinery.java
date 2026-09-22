@@ -2,6 +2,7 @@ package org.team100.frc2026.robot;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.team100.frc2026.field.FieldConstants2026;
 import org.team100.frc2026.subsystems.Intake;
@@ -9,6 +10,7 @@ import org.team100.frc2026.subsystems.IntakeExtend;
 import org.team100.frc2026.subsystems.Shooter;
 import org.team100.frc2026.targeting.Targeter;
 import org.team100.lib.indicator.Beeper;
+import org.team100.lib.localization.AddOdometryNoise;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.FreshSwerveEstimate;
 import org.team100.lib.localization.GroundTruth;
@@ -32,6 +34,8 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -79,10 +83,12 @@ public class Machinery {
                 driveLog,
                 m_swerveKinodynamics,
                 m_modules);
-        FreshSwerveEstimate estimate = FreshSwerveEstimate.get(
+        UnaryOperator<Twist2d> odometryNoise = RobotBase.isReal() ? UnaryOperator.identity() : new AddOdometryNoise();
+        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
                 driveLog,
                 fieldLogger,
                 m_swerveKinodynamics,
+                odometryNoise,
                 layout,
                 gyro,
                 swerveLocal);

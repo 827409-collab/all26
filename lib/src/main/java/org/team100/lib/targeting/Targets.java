@@ -120,7 +120,7 @@ public class Targets extends CameraReader<Target> {
             }
 
             m_log_poseTimestamp.log(() -> timeSec);
-            Pose2d robotPose = m_history.apply(timeSec).pose();
+            Pose2d robotPose = m_history.get(timeSec).pose();
             Transform3d cameraOffset = Offset.get(camera).offset();
             Optional<Translation2d> ot = TargetLocalizer.cameraRotToFieldRelative(
                     robotPose,
@@ -146,7 +146,7 @@ public class Targets extends CameraReader<Target> {
     @Override
     protected void finishUpdate() {
         // compute the closest target
-        Pose2d robotPose = m_history.apply(Takt.get()).pose();
+        Pose2d robotPose = m_history.get(Takt.get()).pose();
 
         m_closestTarget = ObjectPicker.closestObject(m_targets.getAll(), robotPose);
 

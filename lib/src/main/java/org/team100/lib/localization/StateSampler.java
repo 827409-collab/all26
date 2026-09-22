@@ -15,5 +15,5 @@ public interface StateSampler {
      *         sample if the timestamp is off either end of the buffer. Never
      *         returns null.
      */
-    StateSE2 apply(double timestampSeconds);
+    StateSE2 get(double timestampSeconds);
 }
