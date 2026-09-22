@@ -13,7 +13,7 @@ import org.team100.lib.indicator.Beeper;
 import org.team100.lib.localization.AddOdometryNoise;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.AprilTagVisualizer;
-import org.team100.lib.localization.FreshSwerveEstimate;
+import org.team100.lib.localization.FusedEstimator;
 import org.team100.lib.localization.GroundTruth;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -87,7 +87,7 @@ public class Machinery {
                 m_swerveKinodynamics,
                 m_modules);
         UnaryOperator<Twist2d> odometryNoise = RobotBase.isReal() ? UnaryOperator.identity() : new AddOdometryNoise();
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+        FusedEstimator estimate = new FusedEstimator(
                 driveLog,
                 fieldLogger,
                 m_swerveKinodynamics,

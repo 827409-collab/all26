@@ -18,14 +18,14 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
- * Updates the vision and odometry before sampling the history.
+ * Provides state estimates after updating vision and odometry.
  * 
- * Proxy the history after making sure it has received any updates that may
- * mutate it. Some clients want "fresh" estimates, and should use this class;
- * other clients only need old historical estimates, and should use the history.
+ * The underlying updaters use "Fusors" and replay.
  */
-public class FreshSwerveEstimate {
+public class FusedEstimator implements StateEstimator {
     private static final boolean DEBUG = false;
+    private final Gyro m_gyro;
+    private final SwerveLocal m_swerveLocal;
     private final SwerveHistory m_history;
     private final AprilTagCornerRobotLocalizer m_localizer;
     private final OdometryUpdater m_odometryUpdate;
@@ -34,13 +34,15 @@ public class FreshSwerveEstimate {
     /** Side effect mutates history. */
     private final SideEffect m_odometryCache;
 
-    public FreshSwerveEstimate(LoggerFactory driveLog,
+    public FusedEstimator(LoggerFactory driveLog,
             LoggerFactory fieldLogger,
             SwerveKinodynamics swerveKinodynamics,
             UnaryOperator<Twist2d> odometryNoise,
             AprilTagFieldLayoutWithCorrectOrientation layout,
             Gyro gyro,
             SwerveLocal swerveLocal) {
+        m_gyro = gyro;
+        m_swerveLocal = swerveLocal;
         m_history = new SwerveHistory(
                 driveLog,
                 swerveKinodynamics,
@@ -71,13 +73,14 @@ public class FreshSwerveEstimate {
     }
 
     /**
-     * Provide the best estimate for SwerveModel at the given timestamp, first
-     * making sure any pending updates from vision or odometry have been applied.
+     * Estimate at the given timestamp, after applying any pending updates from
+     * vision or odometry.
      * 
      * The estimate is used for many things downstream; noise there is bad.
      * The estimator itself should have enough controls to make the estimate
      * arbitrarily smooth.
      */
+    @Override
     public StateSE2 get(double timestampS) {
         // run our dependencies if they haven't already
         m_localizerCache.run();
@@ -94,15 +97,15 @@ public class FreshSwerveEstimate {
      * Empty the pose history, reset the servos, add the given pose, and flush the
      * cache.
      */
-    public void reset(Pose2d robotPose, IsotropicNoiseSE2 noise) {
-        m_odometryUpdate.reset(robotPose, noise);
-        reset();
-    }
-
-    /**
-     * Invalidate the caches, so the next apply() will poll the delegates.
-     */
-    public void reset() {
+    @Override
+    public void reset(Pose2d pose, IsotropicNoiseSE2 noise) {
+        m_history.reset(
+                m_swerveLocal.positions(),
+                pose,
+                noise,
+                Takt.get(),
+                m_gyro.getYawNWU(),
+                VariableR1.fromVariance(0, 1));
         m_localizerCache.reset();
         m_odometryCache.reset();
     }
@@ -110,6 +113,7 @@ public class FreshSwerveEstimate {
     /**
      * Tags outside this radius are ignored.
      */
+    @Override
     public void setHeedRadiusM(double heedRadiusM) {
         m_localizer.setHeedRadiusM(heedRadiusM);
     }

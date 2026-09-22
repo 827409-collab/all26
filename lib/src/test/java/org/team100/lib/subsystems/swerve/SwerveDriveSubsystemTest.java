@@ -11,7 +11,7 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.se2.ChassisAcceleration;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.FreshSwerveEstimate;
+import org.team100.lib.localization.FusedEstimator;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -49,7 +49,7 @@ class SwerveDriveSubsystemTest implements Timeless {
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
         UnaryOperator<Twist2d> odometryNoise = UnaryOperator.identity();
 
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+        FusedEstimator estimate = new FusedEstimator(
                 logger, fieldLogger, swerveKinodynamics, odometryNoise, layout, gyro, swerveLocal);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(

@@ -88,7 +88,6 @@ public class OdometryUpdater {
         m_log_prevNoise = log.isotropicNoiseSE2Logger(Level.TRACE, "previous noise");
         m_log_updateNoise = log.isotropicNoiseSE2Logger(Level.TRACE, "update noise");
         m_log_newNoise = log.isotropicNoiseSE2Logger(Level.TRACE, "new noise");
-        reset(Pose2d.kZero, IsotropicNoiseSE2.high());
     }
 
     /**
@@ -119,44 +118,6 @@ public class OdometryUpdater {
                     yawNWU, positions);
         }
         return put(timestamp, yawNWU, positions);
-    }
-
-    /**
-     * Empty the history and add the given measurements at the current instant.
-     * 
-     * Uses the module position supplier passed to the constructor, and the gyro.
-     * When this is called by the bound command, it provides a pose with the current
-     * translation and a rotation of zero (or 180 for the other button).
-     */
-    public void reset(Pose2d pose, IsotropicNoiseSE2 noise) {
-        reset(pose, noise, Takt.get());
-    }
-
-    /**
-     * Empty the history and add the given measurements.
-     * 
-     * Uses the module position supplier passed to the constructor.
-     * When this is called by the bound command, it provides a pose with the current
-     * translation and a rotation of zero (or 180 for the other button).
-     * The gyro angle is whatever the gyro says, not zero.
-     * 
-     * New! Adds a very uncertain gyro bias estimate.
-     * 
-     * TODO: remove this, since it just resets history.
-     */
-    public void reset(
-            Pose2d pose,
-            IsotropicNoiseSE2 noise,
-            double timestampSeconds) {
-        // No idea what the gyro bias is.
-        VariableR1 gyroBias = VariableR1.fromVariance(0, 1);
-        m_history.reset(
-                m_positions.get(),
-                pose,
-                noise,
-                timestampSeconds,
-                m_gyro.getYawNWU(),
-                gyroBias);
     }
 
     ////////////////////////////////////////////////////

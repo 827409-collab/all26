@@ -6,7 +6,7 @@ import org.team100.lib.coherence.Takt;
 import org.team100.lib.dynamics.swerve.SwerveEffort;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.se2.ChassisAcceleration;
-import org.team100.lib.localization.FreshSwerveEstimate;
+import org.team100.lib.localization.StateEstimator;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -32,7 +32,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * estimation and local actuation.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsystemSE2, Music {
-    private final FreshSwerveEstimate m_estimate;
+    private final StateEstimator m_estimate;
     private final SwerveLocal m_swerveLocal;
     private final StateSE2Logger m_log_state;
     private final VelocityControlSE2Logger m_log_input;
@@ -41,7 +41,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements VelocitySubsy
 
     public SwerveDriveSubsystem(
             LoggerFactory parent,
-            FreshSwerveEstimate estimate,
+            StateEstimator estimate,
             SwerveLocal swerveLocal) {
         LoggerFactory log = parent.type(this);
         m_estimate = estimate;

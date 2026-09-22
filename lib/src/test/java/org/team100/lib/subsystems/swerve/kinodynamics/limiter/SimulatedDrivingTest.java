@@ -12,7 +12,7 @@ import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.se2.VelocitySE2;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.FreshSwerveEstimate;
+import org.team100.lib.localization.FusedEstimator;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -57,7 +57,7 @@ public class SimulatedDrivingTest implements Timeless {
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
         UnaryOperator<Twist2d> odometryNoise = UnaryOperator.identity();
 
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+        FusedEstimator estimate = new FusedEstimator(
                 logger, fieldLogger, swerveKinodynamics, odometryNoise, layout, gyro, swerveLocal);
         limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
 

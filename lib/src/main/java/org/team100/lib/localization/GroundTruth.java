@@ -25,29 +25,32 @@ import edu.wpi.first.wpilibj.RobotBase;
  * the simulated measurements (which include drift).
  */
 public class GroundTruth {
-    private final SimulatedTagCornerDetector m_simulatedTagDetector;
-    private final SimulatedTargetWriter m_targetSimulator;
-    private final OdometryUpdater m_groundTruthUpdater;
-    private final RobotPoseVisualization m_groundTruthViz;
+    private final SwerveModuleCollection m_modules;
+    private final SimulatedGyro m_gyro;
+    private final SwerveHistory m_history;
+    private final OdometryUpdater m_odometry;
+    private final RobotPoseVisualization m_viz;
+    private final SimulatedTagCornerDetector m_tagSim;
+    private final SimulatedTargetWriter m_targetSim;
 
     public GroundTruth(
             LoggerFactory fieldLogger,
             LoggerFactory logger,
-            SwerveKinodynamics m_swerveKinodynamics,
-            SwerveModuleCollection m_modules,
+            SwerveKinodynamics kinodynamics,
+            SwerveModuleCollection modules,
             AprilTagFieldLayoutWithCorrectOrientation layout) {
         LoggerFactory simLog = logger.name("Simulation");
-
+        m_modules = modules;
         // Ground-truth simulated gyro does not drift at all.
-        SimulatedGyro groundTruthGyro = new SimulatedGyro(simLog,
-                m_swerveKinodynamics, m_modules, 0);
+        m_gyro = new SimulatedGyro(simLog,
+                kinodynamics, m_modules, 0);
 
         // History of ground-truth poses is based only on odometry.
-        SwerveHistory groundTruthHistory = new SwerveHistory(
+        m_history = new SwerveHistory(
                 simLog,
-                m_swerveKinodynamics,
+                kinodynamics,
                 0.2,
-                groundTruthGyro.getYawNWU(),
+                m_gyro.getYawNWU(),
                 VariableR1.fromStdDev(0, 1),
                 m_modules.positions(),
                 Pose2d.kZero,
@@ -56,37 +59,43 @@ public class GroundTruth {
 
         // Read positions and ground truth gyro (which are perfectly consistent) and
         // maintain the ground truth history.
-        m_groundTruthUpdater = new OdometryUpdater(
-                simLog, m_swerveKinodynamics, groundTruthGyro,
-                groundTruthHistory, m_modules::positions,
+        m_odometry = new OdometryUpdater(
+                simLog, kinodynamics, m_gyro,
+                m_history, m_modules::positions,
                 UnaryOperator.identity(), true);
 
         GroundTruthCache groundTruthCache = new GroundTruthCache(
-                m_groundTruthUpdater, groundTruthHistory);
+                m_odometry, m_history);
 
         // Visualization of the simulated "ground truth" of the robot pose.
-        m_groundTruthViz = new RobotPoseVisualization(
+        m_viz = new RobotPoseVisualization(
                 fieldLogger, () -> groundTruthCache.apply(Takt.get()).pose(), "ground truth");
 
         // Simulated camera uses the ground truth because the real cameras are not aware
         // of the pose estimate.
         // m_simulatedTagDetector = SimulatedTagDetector.get(
         // layout, groundTruthHistory);
-        m_simulatedTagDetector = SimulatedTagCornerDetector.get(
-                layout, groundTruthHistory);
-        m_targetSimulator = SimulatedTargetWriter.get(simLog, groundTruthHistory);
+        m_tagSim = SimulatedTagCornerDetector.get(
+                layout, m_history);
+        m_targetSim = SimulatedTargetWriter.get(simLog, m_history);
     }
 
     /**
      * Reset the pose with roughly infinite uncertainty, so the following update
      * will have a large effect.
      */
-    public void resetPose(Pose2d p) {
+    public void resetPose(Pose2d pose) {
         if (RobotBase.isReal() && !Experiments.INSTANCE.enabled(Experiment.SimulateCameras)) {
             // Real robot, but without simulated cameras.
             return;
         }
-        m_groundTruthUpdater.reset(p, IsotropicNoiseSE2.high());
+        m_history.reset(
+                m_modules.positions(),
+                pose,
+                IsotropicNoiseSE2.high(),
+                Takt.get(),
+                m_gyro.getYawNWU(),
+                VariableR1.fromVariance(0, 1));
     }
 
     /**
@@ -98,10 +107,10 @@ public class GroundTruth {
             return;
         }
         // publish the simulated tag sightings.
-        m_simulatedTagDetector.run();
-        m_targetSimulator.run();
+        m_tagSim.run();
+        m_targetSim.run();
         // publish ground truth pose
-        if (m_groundTruthViz != null)
-            m_groundTruthViz.run();
+        if (m_viz != null)
+            m_viz.run();
     }
 }

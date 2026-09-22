@@ -17,7 +17,8 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.FreshSwerveEstimate;
+import org.team100.lib.localization.FusedEstimator;
+import org.team100.lib.localization.StateEstimator;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -69,7 +70,7 @@ class DriveWithTrajectoryListFunctionTest implements Timeless {
 
         UnaryOperator<Twist2d> odometryNoise = UnaryOperator.identity();
 
-        FreshSwerveEstimate estimate = new FreshSwerveEstimate(
+        StateEstimator estimate = new FusedEstimator(
                 logger, fieldLogger, swerveKinodynamics, odometryNoise, layout, gyro, swerveLocal);
 
         SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
