@@ -76,7 +76,7 @@ public class Shooter extends SubsystemBase {
         final Motor m2;
         final Motor m3;
         final Motor m4;
-        if (ENABLE && RpobotBase.isReal()) {
+        if (ENABLE && RobotBase.isReal()) {
             // friction test 3/12/262
             Friction friction = new Friction(0.3, 0.25, 0.0, 0.5);
             // tuned 3/12/26
