@@ -27,7 +27,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
-public class SimulatedTagDetectorTest {
+public class SimulatedTagCornerDetectorTest {
     private static final double DELTA = 0.001;
 
     @BeforeEach
@@ -41,7 +41,7 @@ public class SimulatedTagDetectorTest {
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation(
                 "2025-reefscape.json");
         // right in front of tag 7
-        SimulatedTagDetector sim = new SimulatedTagDetector(
+        SimulatedTagCornerDetector sim = new SimulatedTagCornerDetector(
                 cameras,
                 layout,
                 x -> new StateSE2(new Pose2d(2.6576, 4.0259, Rotation2d.kZero)));
@@ -57,7 +57,7 @@ public class SimulatedTagDetectorTest {
         Pose3d cameraPose3d = new Pose3d();
         // tag in front
         Pose3d tagPose = new Pose3d(1, 0, 0, new Rotation3d());
-        Transform3d tagInCamera = SimulatedTagDetector.tagInCamera(
+        Transform3d tagInCamera = SimulatedTagCornerDetector.tagInCamera(
                 () -> 0.0, cameraPose3d, tagPose);
         assertEquals(1, tagInCamera.getTranslation().getX(), DELTA);
         assertEquals(0, tagInCamera.getTranslation().getY(), DELTA);
@@ -73,7 +73,7 @@ public class SimulatedTagDetectorTest {
         Pose3d cameraPose3d = new Pose3d(0, 1, 0, new Rotation3d());
         // tag in front
         Pose3d tagPose = new Pose3d(1, 0, 0, new Rotation3d());
-        Transform3d tagInCamera = SimulatedTagDetector.tagInCamera(
+        Transform3d tagInCamera = SimulatedTagCornerDetector.tagInCamera(
                 () -> 0.0, cameraPose3d, tagPose);
         assertEquals(1, tagInCamera.getTranslation().getX(), DELTA);
         assertEquals(-1, tagInCamera.getTranslation().getY(), DELTA);
@@ -89,7 +89,7 @@ public class SimulatedTagDetectorTest {
         Pose3d cameraPose3d = new Pose3d(0, 0, 0, new Rotation3d(0, 0, Math.PI / 4));
         // tag in front
         Pose3d tagPose = new Pose3d(1, 0, 0, new Rotation3d());
-        Transform3d tagInCamera = SimulatedTagDetector.tagInCamera(
+        Transform3d tagInCamera = SimulatedTagCornerDetector.tagInCamera(
                 () -> 0.0, cameraPose3d, tagPose);
         assertEquals(0.707, tagInCamera.getTranslation().getX(), DELTA);
         assertEquals(-0.707, tagInCamera.getTranslation().getY(), DELTA);
@@ -106,7 +106,7 @@ public class SimulatedTagDetectorTest {
         // tag rotated
         Pose3d tagPose = new Pose3d(1, 0, 1, new Rotation3d(1, 2, 3));
         // note this is looking at the tag from behind
-        Transform3d tagInCamera = SimulatedTagDetector.tagInCamera(
+        Transform3d tagInCamera = SimulatedTagCornerDetector.tagInCamera(
                 () -> 0.0, cameraPose3d, tagPose);
         // position is not affectted by tag rotation
         assertEquals(0.707, tagInCamera.getTranslation().getX(), DELTA);
@@ -121,15 +121,15 @@ public class SimulatedTagDetectorTest {
     @Test
     void testFrustum() {
         // normalized coordinates here are (1,1), which is outside the FOV.
-        assertFalse(SimulatedTagDetector.visible(
+        assertFalse(SimulatedTagCornerDetector.visible(
                 new Transform3d(new Translation3d(1, 1, 1), new Rotation3d())));
 
         // normalized coordinates are (0.5, 0.5) which is visible.
-        assertTrue(SimulatedTagDetector.visible(
+        assertTrue(SimulatedTagCornerDetector.visible(
                 new Transform3d(new Translation3d(1, 0.5, 0.5), new Rotation3d())));
 
         // frustum faces forwards only.
-        assertFalse(SimulatedTagDetector.visible(
+        assertFalse(SimulatedTagCornerDetector.visible(
                 new Transform3d(new Translation3d(-1, 0.5, 0.5), new Rotation3d())));
     }
 
@@ -148,7 +148,7 @@ public class SimulatedTagDetectorTest {
         assertEquals(2.92, angle, DELTA);
 
         // facing away is invisible
-        assertFalse(SimulatedTagDetector.visible(
+        assertFalse(SimulatedTagCornerDetector.visible(
                 new Transform3d(new Translation3d(1, 0, 0), new Rotation3d(0, 0, 2))));
     }
 
