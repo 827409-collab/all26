@@ -1,9 +1,7 @@
 package org.team100.lib.subsystems.shooter;
 
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.reference.r1.SetpointsR1;
 import org.team100.lib.servo.LinearPositionServo;
-import org.team100.lib.state.ControlR1;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,8 +54,7 @@ public class PositionIndexer extends SubsystemBase implements ShooterIndexer {
         if (m_profiled) {
             m_servo.setPositionProfiled(m_goal);
         } else {
-            ControlR1 c = new ControlR1(m_goal);
-            m_servo.setPositionDirect(new SetpointsR1(c, c));
+            m_servo.setPositionDirect(m_goal);
         }
     }
 
