@@ -58,7 +58,10 @@ public class SingleLinearSubsystem extends SubsystemBase {
 
         m_servo1 = new OutboardLinearPositionServo(
                 m_log1, lm1, dynamics, ref, xtolerance, vtolerance);
+    }
 
+    public Command voltage(double voltage) {
+        return run(() -> setVoltage(voltage));
     }
 
     public Command position(double position) {
@@ -82,13 +85,17 @@ public class SingleLinearSubsystem extends SubsystemBase {
     public boolean atGoal() {
         return m_servo1.atGoal();
     }
-    
+
     public void close() {
         m_servo1.close();
     }
 
     private void reset() {
         m_servo1.reset();
+    }
+
+    private void setVoltage(double value) {
+        m_servo1.setVoltage(value);
     }
 
     private void setPositionProfiled(double value) {

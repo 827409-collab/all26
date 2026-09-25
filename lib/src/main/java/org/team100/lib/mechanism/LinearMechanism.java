@@ -71,7 +71,7 @@ public class LinearMechanism implements Player {
         m_motor.setDutyCycle(output);
     }
 
-    /** For tuning friction. */
+    /** For measuring friction. */
     public void setVoltage(double volts) {
         m_motor.setVoltage(volts);
     }

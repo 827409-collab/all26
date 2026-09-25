@@ -91,6 +91,11 @@ public abstract class AngularPositionServoImpl implements AngularPositionServo {
     }
 
     @Override
+    public void setVoltage(double v) {
+        m_mechanism.setVoltage(v);
+    }
+
+    @Override
     public void setUnwrappedEncoderPositionRad(double x) {
         m_mechanism.setUnwrappedEncoderPositionRad(x);
     }
@@ -104,14 +109,20 @@ public abstract class AngularPositionServoImpl implements AngularPositionServo {
 
     @Override
     public void setPositionDirect(double wrappedGoalRad, double velocityRad_S) {
+        if (DEBUG)
+            System.out.printf("setPositionDirect %6.3f %6.3f\n", wrappedGoalRad, velocityRad_S);
         m_log_velocity.log(() -> velocityRad_S);
         // make sure the reference gets reinitialized if required later
         m_unwrappedGoal = null;
         m_validSetpoint = true;
 
         double unwrappedMeasurement = m_mechanism.getUnwrappedPositionRad();
+        if (DEBUG)
+            System.out.printf("unwrappedMeasurement %6.3f\n", unwrappedMeasurement);
         double dx = MathUtil.angleModulus(wrappedGoalRad - unwrappedMeasurement);
         double unwrappedGoalX = unwrappedMeasurement + dx;
+        if (DEBUG)
+            System.out.printf("unwrappedGoalX %6.3f\n", unwrappedGoalX);
         if (dx > 0) {
             if (DEBUG)
                 System.out.println("short way is positive");

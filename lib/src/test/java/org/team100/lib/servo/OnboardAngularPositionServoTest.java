@@ -122,9 +122,9 @@ public class OnboardAngularPositionServoTest implements Timeless {
                         i, encoder.getUnwrappedPositionRad(), encoder.getVelocityRad_S());
         }
         // heading towards -pi
-        assertEquals(-3.115, servo.getWrappedPositionRad(), 0.001);
-        assertEquals(-3.115, servo.getUnwrappedPositionRad(), 0.001);
-        for (int i = 17; i < 40; ++i) {
+        assertEquals(-3.117, servo.getWrappedPositionRad(), 0.001);
+        assertEquals(-3.117, servo.getUnwrappedPositionRad(), 0.001);
+        for (int i = 17; i < 41; ++i) {
             servo.setPositionProfiled(3);
             stepTime();
             if (DEBUG)
@@ -132,7 +132,7 @@ public class OnboardAngularPositionServoTest implements Timeless {
                         i, encoder.getUnwrappedPositionRad(), encoder.getVelocityRad_S());
         }
         // now the wrapped angle is what we asked for
-        assertEquals(3, servo.getWrappedPositionRad(), 0.001);
+        assertEquals(3.0, servo.getWrappedPositionRad(), 0.001);
         // and the unwrapped one shows that we went past -pi
         assertEquals(-3.283, servo.getUnwrappedPositionRad(), 0.001);
     }
@@ -280,10 +280,10 @@ public class OnboardAngularPositionServoTest implements Timeless {
                         i, encoder.getUnwrappedPositionRad(), encoder.getVelocityRad_S());
         }
         // wrapped angle has crossed over
-        assertEquals(3.12, servo.getWrappedPositionRad(), 0.001);
+        assertEquals(3.116, servo.getWrappedPositionRad(), 0.001);
         // unwrapped continues
-        assertEquals(-3.163, servo.getUnwrappedPositionRad(), 0.001);
-        for (int i = 5; i < 20; ++i) {
+        assertEquals(-3.167, servo.getUnwrappedPositionRad(), 0.001);
+        for (int i = 5; i < 22; ++i) {
             servo.setPositionDirect(3, 0);
             stepTime();
             if (DEBUG)

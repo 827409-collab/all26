@@ -19,6 +19,9 @@ public interface LinearPositionServo {
     /** Force the encoder measurement. For "homing". */
     void setEncoderPositionM(double positionM);
 
+    /** For measuring friction. */
+    void setVoltage(double volts);
+
     /** For friction measurement and homing. */
     void setVelocity(double velocityM_S);
 

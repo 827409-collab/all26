@@ -8,6 +8,10 @@ public class MockLinearVelocityServo implements LinearVelocityServo {
     }
 
     @Override
+    public void setVoltage(double v) {
+    }
+
+    @Override
     public void setDutyCycle(double dutyCycle) {
     }
 

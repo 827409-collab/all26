@@ -10,6 +10,10 @@ public class MockAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
+    public void setVoltage(double v) {
+    }
+
+    @Override
     public void setUnwrappedEncoderPositionRad(double x) {
     }
 

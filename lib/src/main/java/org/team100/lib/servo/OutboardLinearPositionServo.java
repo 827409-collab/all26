@@ -107,6 +107,13 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     }
 
     @Override
+    public void setVoltage(double v) {
+        m_goal = null;
+        m_setpoints = null;
+        m_mechanism.setVoltage(v);
+    }
+
+    @Override
     public void setEncoderPositionM(double positionM) {
         m_mechanism.setEncoderPositionM(positionM);
     }

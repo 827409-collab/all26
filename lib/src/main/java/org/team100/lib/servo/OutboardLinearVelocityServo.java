@@ -100,6 +100,11 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
         m_ref.init(v);
     }
 
+    @Override
+    public void setVoltage(double v) {
+        m_mechanism.setVoltage(v);
+    }
+
     /**
      * Resets the profile if necessary.
      * 

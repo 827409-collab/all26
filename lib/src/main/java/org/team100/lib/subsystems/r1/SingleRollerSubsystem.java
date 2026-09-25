@@ -54,7 +54,10 @@ public class SingleRollerSubsystem extends SubsystemBase {
                 Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         m_servo1 = new OutboardLinearVelocityServo(
                 m_log1, lm1, dynamics, ref, vtolerance);
+    }
 
+    public Command voltage(double voltage) {
+        return run(() -> setVoltage(voltage));
     }
 
     public Command velocity(double velocity) {
@@ -76,6 +79,10 @@ public class SingleRollerSubsystem extends SubsystemBase {
 
     private void reset() {
         m_servo1.reset();
+    }
+
+    private void setVoltage(double value) {
+        m_servo1.setVoltage(value);
     }
 
     private void setVelocity(double value) {

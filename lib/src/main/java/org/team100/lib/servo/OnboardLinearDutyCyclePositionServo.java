@@ -106,6 +106,11 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     }
 
     @Override
+    public void setVoltage(double v) {
+        m_mechanism.setVoltage(v);
+    }
+
+    @Override
     public void setEncoderPositionM(double positionM) {
         m_mechanism.setEncoderPositionM(positionM);
     }
