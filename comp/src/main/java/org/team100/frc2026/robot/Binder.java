@@ -119,10 +119,6 @@ public class Binder {
 
     }
 
-    public void periodic() {
-        m_driver.periodic();
-    }
-
     /** Keeps tests from conflicting. */
     public void close() {
         //

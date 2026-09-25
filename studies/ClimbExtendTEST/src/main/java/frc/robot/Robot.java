@@ -37,6 +37,8 @@ public class Robot extends TimedRobot {
         // Run one iteration of the command scheduler.
         CommandScheduler.getInstance().run();
         m_machinery.periodic();
+        // Poll for logs after all the actuation is done
+        LogPoller.log();
         if (Experiments.INSTANCE.enabled(Experiment.FlushOften)) {
             // StrUtil.warn("FLUSHING EVERY LOOP, DO NOT USE IN COMP");
             NetworkTableInstance.getDefault().flush();

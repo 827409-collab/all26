@@ -77,6 +77,8 @@ public class Robot extends TimedRobot100 {
         CommandScheduler.getInstance().run();
         m_robotLog.periodic();
         m_control.periodic();
+        // Poll for logs after all the actuation is done
+        LogPoller.log();
         if (Experiments.INSTANCE.enabled(Experiment.FlushOften)) {
             NetworkTableInstance.getDefault().flush();
         }

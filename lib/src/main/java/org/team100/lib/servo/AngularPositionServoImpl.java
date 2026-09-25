@@ -2,6 +2,7 @@ package org.team100.lib.servo;
 
 import org.team100.lib.dynamics.r.RDynamics;
 import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LogPoller;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -76,6 +77,7 @@ public abstract class AngularPositionServoImpl implements AngularPositionServo {
         m_log_at_setpoint = log.booleanLogger(Level.TRACE, "at setpoint");
         m_log_profile_done = log.booleanLogger(Level.TRACE, "profile done");
         m_log_at_goal = log.booleanLogger(Level.TRACE, "at goal");
+        LogPoller.register(this::log);
     }
 
     abstract void actuate(SetpointsR1 wrappedSetpoints);
@@ -321,9 +323,7 @@ public abstract class AngularPositionServoImpl implements AngularPositionServo {
         m_mechanism.close();
     }
 
-    @Override
-    public void periodic() {
-        m_mechanism.periodic();
+    private void log() {
         m_log_atGoal.log(() -> atGoal());
         m_log_position.log(() -> getUnwrappedPositionRad());
         m_log_velocity.log(() -> getVelocity());

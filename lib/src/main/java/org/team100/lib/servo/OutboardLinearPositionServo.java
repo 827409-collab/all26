@@ -4,6 +4,7 @@ import org.team100.lib.dynamics.p.PAcceleration;
 import org.team100.lib.dynamics.p.PDynamics;
 import org.team100.lib.dynamics.p.PEffort;
 import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LogPoller;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -69,6 +70,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_log_at_setpoint = log.booleanLogger(Level.TRACE, "at setpoint");
         m_log_profile_done = log.booleanLogger(Level.TRACE, "profile done");
         m_log_at_goal = log.booleanLogger(Level.TRACE, "at goal");
+        LogPoller.register(this::log);
     }
 
     /**
@@ -240,9 +242,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_mechanism.close();
     }
 
-    @Override
-    public void periodic() {
-        m_mechanism.periodic();
+    private void log() {
         m_log_position.log(() -> getPosition());
         m_log_velocity.log(() -> getVelocity());
         m_log_acceleration.log(() -> getAcceleration());

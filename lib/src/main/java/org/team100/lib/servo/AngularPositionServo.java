@@ -154,9 +154,6 @@ public interface AngularPositionServo extends Player {
 
     void close();
 
-    /** for logging */
-    void periodic();
-
     /** For friction measurement and homing. */
     void setVelocity(double rad_S);
 }

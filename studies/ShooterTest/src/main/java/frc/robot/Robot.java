@@ -64,6 +64,8 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         left.periodic();
         right.periodic();
+        // Poll for logs after all the actuation is done
+        LogPoller.log();
     }
 
     @Override

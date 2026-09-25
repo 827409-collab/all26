@@ -59,8 +59,4 @@ public interface LinearVelocityServo extends Player {
 
     /** For cleanup. */
     void close();
-
-    /** For logging */
-    void periodic();
-
 }

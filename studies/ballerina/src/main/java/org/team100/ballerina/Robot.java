@@ -122,6 +122,8 @@ public class Robot extends TimedRobot {
         m_pose.periodic();
         m_indicator.periodic();
         m_ball.periodic();
+        // Poll for logs after all the actuation is done
+        LogPoller.log();
     }
 
     @Override

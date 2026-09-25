@@ -77,12 +77,6 @@ public class IntakeExtend extends SubsystemBase {
                 RETRACTED_POSITION, RETRACTED_POSITION, EXTENDED_POSITION);
     }
 
-    @Override
-    public void periodic() {
-        m_servo.periodic();
-        m_Servo2.periodic();
-    }
-
     /** Current position is out, or nearly so */
     public boolean isOut() {
         return MathUtil.isNear(m_servo.getUnwrappedPositionRad(), EXTENDED_POSITION, 1)

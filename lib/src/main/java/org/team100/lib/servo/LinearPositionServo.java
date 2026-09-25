@@ -64,6 +64,4 @@ public interface LinearPositionServo {
     void stop();
 
     void close();
-
-    void periodic();
 }

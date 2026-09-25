@@ -82,12 +82,7 @@ public class SingleLinearSubsystem extends SubsystemBase {
     public boolean atGoal() {
         return m_servo1.atGoal();
     }
-
-    @Override
-    public void periodic() {
-        m_servo1.periodic();
-    }
-
+    
     public void close() {
         m_servo1.close();
     }

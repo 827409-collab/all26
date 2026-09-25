@@ -2,6 +2,7 @@ package org.team100.lib.sensor.position.absolute.sim;
 
 import org.team100.lib.coherence.Takt;
 import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LogPoller;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.sensor.position.absolute.RotaryPositionSensor;
@@ -38,6 +39,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         m_log_position = log.doubleLogger(Level.TRACE, "position");
         m_log_rate = log.doubleLogger(Level.TRACE, "rate");
         m_log_accel = log.doubleLogger(Level.TRACE, "accel");
+        LogPoller.register(this::log);
     }
 
     @Override
@@ -72,9 +74,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         m_positionRad = x;
     }
 
-    @Override
-    public void periodic() {
-        m_encoder.periodic();
+    private void log() {
         m_log_position.log(() -> m_positionRad);
     }
 

@@ -123,12 +123,7 @@ public class ReduxPositionSensor implements RotaryPositionSensor {
     }
 
     @Override
-    public void periodic() {
-    }
-
-    @Override
     public void close() {
         encoder.close();
     }
-
 }

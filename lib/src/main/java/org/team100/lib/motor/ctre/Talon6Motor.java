@@ -9,6 +9,7 @@ import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.config.Friction;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LogPoller;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -218,6 +219,7 @@ public abstract class Talon6Motor implements Motor {
         m_log_temp = m_log.doubleLogger(Level.DEBUG, "temperature (C)");
 
         m_log.intLogger(Level.TRACE, "Device ID").log(() -> canId.id);
+        LogPoller.register(this::log);
     }
 
     /** Set duty cycle immediately. */
@@ -345,11 +347,6 @@ public abstract class Talon6Motor implements Motor {
     @Override
     public void close() {
         m_motor.close();
-    }
-
-    @Override
-    public void periodic() {
-        log();
     }
 
     /////////////////////////////////////////////

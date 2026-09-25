@@ -63,7 +63,6 @@ class SwerveDriveSubsystemTest implements Timeless {
         drive.resetPose(new Pose2d(), IsotropicNoiseSE2.high());
 
         stepTime();
-        drive.periodic();
         StateSE2 state = drive.getState();
 
         assertEquals(0, state.x().x(), DELTA);
@@ -73,7 +72,6 @@ class SwerveDriveSubsystemTest implements Timeless {
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0), ChassisAcceleration.ZERO);
 
         stepTime();
-        drive.periodic();
 
         // at 1 m/s for 0.02 s, so we go 0.02 m
         assertEquals(0.02, collection.positions().frontLeft().distanceMeters(), 1e-6);
@@ -86,7 +84,6 @@ class SwerveDriveSubsystemTest implements Timeless {
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0), ChassisAcceleration.ZERO);
 
         stepTime();
-        drive.periodic();
         StateSE2 state2 = drive.getState();
 
         // we went a little further, no longer accelerating.
@@ -96,7 +93,6 @@ class SwerveDriveSubsystemTest implements Timeless {
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0), ChassisAcceleration.ZERO);
 
         stepTime();
-        drive.periodic();
         StateSE2 state3 = drive.getState();
 
         // a little further, but no longer accelerating

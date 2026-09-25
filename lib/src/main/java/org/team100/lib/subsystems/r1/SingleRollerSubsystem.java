@@ -70,11 +70,6 @@ public class SingleRollerSubsystem extends SubsystemBase {
         return m_servo1.atGoal();
     }
 
-    @Override
-    public void periodic() {
-        m_servo1.periodic();
-    }
-
     public void close() {
         m_servo1.close();
     }

@@ -23,6 +23,8 @@ public class Robot extends TimedRobot {
         sync.run();
         Cache.refresh();
         CommandScheduler.getInstance().run();
+        // Poll for logs after all the actuation is done
+        LogPoller.log();
     }
 
     @Override

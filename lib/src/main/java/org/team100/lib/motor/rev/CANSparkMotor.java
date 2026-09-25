@@ -8,6 +8,7 @@ import org.team100.lib.config.CurrentLimit;
 import org.team100.lib.config.Friction;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LogPoller;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.TotalCurrentLog;
@@ -169,6 +170,7 @@ public abstract class CANSparkMotor implements Motor {
         m_log_stator_current = m_log.doubleLogger(Level.DEBUG, "stator current (A)");
         m_log_supplyVoltage = m_log.doubleLogger(Level.DEBUG, "voltage (V)");
         m_log.intLogger(Level.TRACE, "Device ID").log(m_motor::getDeviceId);
+        LogPoller.register(this::log);
     }
 
     @Override
@@ -304,11 +306,6 @@ public abstract class CANSparkMotor implements Motor {
         warn(() -> m_encoder.setPosition(0));
         m_position.reset();
         m_velocity.reset();
-    }
-
-    @Override
-    public void periodic() {
-        log();
     }
 
     @Override

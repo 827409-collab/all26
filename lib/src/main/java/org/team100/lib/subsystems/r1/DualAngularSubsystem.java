@@ -93,12 +93,6 @@ public class DualAngularSubsystem extends SubsystemBase {
         return m_servo1.atGoal() && m_servo2.atGoal();
     }
 
-    @Override
-    public void periodic() {
-        m_servo1.periodic();
-        m_servo2.periodic();
-    }
-
     public void close() {
         m_servo1.close();
         m_servo2.close();

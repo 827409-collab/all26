@@ -41,10 +41,6 @@ public class MockLinearVelocityServo implements LinearVelocityServo {
     }
 
     @Override
-    public void periodic() {
-    }
-
-    @Override
     public void play(double freq) {
     }
 
