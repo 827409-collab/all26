@@ -2,6 +2,7 @@ package frc.robot;
 
 import org.team100.lib.coherence.Cache;
 import org.team100.lib.coherence.Takt;
+import org.team100.lib.logging.LogPoller;
 import org.team100.lib.network.Sync;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -23,6 +24,8 @@ public class Robot extends TimedRobot {
         sync.run();
         Cache.refresh();
         CommandScheduler.getInstance().run();
+        // Poll for logs after all the actuation is done
+        LogPoller.log();
     }
 
     @Override

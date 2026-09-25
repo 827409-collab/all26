@@ -164,9 +164,4 @@ public class RotaryPositionSubsystem1d extends SubsystemBase {
         return m_servo.atGoal();
     }
 
-    @Override
-    public void periodic() {
-        m_servo.periodic();
-    }
-
 }
